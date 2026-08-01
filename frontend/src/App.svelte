@@ -9,6 +9,8 @@
   import Content from './lib/views/Content.svelte'
   import Builder from './lib/views/Builder.svelte'
   import Campaigns from './lib/views/Campaigns.svelte'
+  import Import from './lib/views/Import.svelte'
+  import Combat from './lib/views/Combat.svelte'
 
   onMount(() => {
     initTheme()
@@ -29,6 +31,10 @@
     <Builder />
   {:else if route.name === 'campaigns'}
     <Campaigns />
+  {:else if route.name === 'import'}
+    <Import />
+  {:else if route.name === 'combat'}
+    <Combat />
   {:else}
     <div class="notfound">
       <h1>404</h1>

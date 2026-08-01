@@ -14,6 +14,8 @@
     { path: '/characters', label: 'Personagens', match: ['characters', 'character'] },
     { path: '/content', label: 'Conteúdo', match: ['content'] },
     { path: '/campaigns', label: 'Campanhas', match: ['campaigns'] },
+    { path: '/import', label: 'Importar', match: ['import'] },
+    { path: '/combat', label: 'Combate', match: ['combat'] },
   ]
 
   function isActive(match: RouteName[]): boolean {
