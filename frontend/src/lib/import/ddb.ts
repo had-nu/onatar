@@ -224,9 +224,7 @@ export function toBuildRequest(parsed: ParsedDDB): BuildRequest {
   for (const a of ABILITIES) if (!abilityScores[a]) abilityScores[a] = 10
 
   const classes: ClassInput[] =
-    parsed.classes.length > 0
-      ? parsed.classes
-      : [{ id: 'fighter', level: parsed.classes.length === 0 ? (parsed.level ?? 1) : 1 }]
+    parsed.classes.length > 0 ? parsed.classes : [{ id: 'fighter', level: 1 }]
 
   return {
     name: parsed.name ?? 'Importado',
@@ -391,7 +389,8 @@ export async function extractTextFromPDF(file: File): Promise<string> {
     workerConfigured = true
   }
   const data = new Uint8Array(await file.arrayBuffer())
-  const doc = await pdfjsLib.getDocument({ data }).promise
+  const task = pdfjsLib.getDocument({ data })
+  const doc = await task.promise
   try {
     const chunks: string[] = []
     for (let p = 1; p <= doc.numPages; p++) {
@@ -401,6 +400,6 @@ export async function extractTextFromPDF(file: File): Promise<string> {
     }
     return chunks.join('\n')
   } finally {
-    await doc.destroy()
+    await task.destroy()
   }
 }

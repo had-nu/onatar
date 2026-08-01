@@ -96,8 +96,8 @@
         <button
           class="btn danger"
           onclick={() => {
-            if (confirm(`Terminar o combate "${combatants.name}"?`)) {
-              deleteSession(combatants.id)
+            if (confirm(`Terminar o combate "${combatants!.name}"?`)) {
+              deleteSession(combatants!.id)
               selectedId = ''
               combatants = undefined
             }
@@ -135,23 +135,23 @@
                   aria-label={`Iniciativa de ${c.name}`}
                   value={c.initiative}
                   onchange={(e) =>
-                    apply(() => setInitiative(combatants.id, c.id, Number(e.currentTarget.value)))}
+                    apply(() => setInitiative(combatants!.id, c.id, Number(e.currentTarget.value)))}
                 />
               </span>
               <strong>{c.name}</strong>
               <span class="hp">{hpOf(c)}</span>
             </div>
             <div class="row-actions">
-              <button class="btn sm" onclick={() => apply(() => damage(combatants.id, c.id, 1))}
+              <button class="btn sm" onclick={() => apply(() => damage(combatants!.id, c.id, 1))}
                 >−1</button
               >
-              <button class="btn sm" onclick={() => apply(() => damage(combatants.id, c.id, 5))}
+              <button class="btn sm" onclick={() => apply(() => damage(combatants!.id, c.id, 5))}
                 >−5</button
               >
-              <button class="btn sm" onclick={() => apply(() => heal(combatants.id, c.id, 5))}
+              <button class="btn sm" onclick={() => apply(() => heal(combatants!.id, c.id, 5))}
                 >+5</button
               >
-              <button class="btn sm" onclick={() => apply(() => heal(combatants.id, c.id, 10))}
+              <button class="btn sm" onclick={() => apply(() => heal(combatants!.id, c.id, 10))}
                 >+10</button
               >
             </div>
@@ -160,7 +160,7 @@
                 <button
                   class="chip"
                   class:on={c.conditions.includes(cond)}
-                  onclick={() => apply(() => toggleCondition(combatants.id, c.id, cond))}
+                  onclick={() => apply(() => toggleCondition(combatants!.id, c.id, cond))}
                 >
                   {cond}
                 </button>
@@ -169,7 +169,7 @@
             <button
               class="btn sm remove"
               onclick={() => {
-                apply(() => removeCombatant(combatants.id, c.id))
+                apply(() => removeCombatant(combatants!.id, c.id))
               }}
             >
               Remover

@@ -80,8 +80,8 @@ function mutate(id: string, fn: (s: CombatSession) => CombatSession) {
   if (s) save(fn(s))
 }
 
-function emptyConditions(c: Combatant | undefined): string[] {
-  return c?.conditions ?? []
+function emptyConditions(conditions: string[] | undefined): string[] {
+  return conditions ?? []
 }
 
 /** Write HP/conditions back to the linked character's live sheet. */
@@ -117,7 +117,7 @@ export function addCharacterToCombat(sessionId: string, characterId: string) {
     initiative: 0,
     hpCurrent: current,
     hpMax: max,
-    conditions: emptyConditions(ch.live),
+    conditions: emptyConditions(ch.live?.conditions),
   })
 }
 

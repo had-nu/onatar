@@ -11,6 +11,7 @@
   let status = $state<'idle' | 'parsing' | 'review' | 'saving'>('idle')
   let error = $state('')
   let parsed = $state<ParsedDDB | null>(null)
+  let saving = $state(false)
   let dragOver = $state(false)
   let contentReady = $state(false)
   let fileInput = $state<HTMLInputElement>()
@@ -61,6 +62,7 @@
   async function create() {
     if (!parsed) return
     status = 'saving'
+    saving = true
     const draft = toBuildRequest({ ...parsed, abilityScores: pendingAbility })
     try {
       const sheet = await buildDraft(draft)
@@ -69,6 +71,7 @@
       navigate(`/characters/${c.id}`)
     } catch {
       status = 'review'
+      saving = false
       error = 'Falha ao guardar a personagem. Revê os valores e tenta novamente.'
     }
   }
@@ -175,8 +178,8 @@
 
     <div class="actions">
       <button class="btn" onclick={() => (status = 'idle')}>Cancelar</button>
-      <button class="btn primary" disabled={!reviewChecked || status === 'saving'} onclick={create}>
-        {status === 'saving' ? 'A guardar…' : 'Criar personagem'}
+      <button class="btn primary" disabled={!reviewChecked || saving} onclick={create}>
+        {saving ? 'A guardar…' : 'Criar personagem'}
       </button>
     </div>
   </section>
