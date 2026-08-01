@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { navigate } from '../router.svelte'
   import { contentError, loadContent } from '../content.svelte'
   import {
     STEPS,
