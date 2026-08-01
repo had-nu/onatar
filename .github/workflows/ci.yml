@@ -90,9 +90,9 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           severity: HIGH,CRITICAL
-exit-code: '1'
+          exit-code: '1'
 
-    frontend:
+  frontend:
     name: Frontend (typecheck, test, lint)
     runs-on: ubuntu-latest
     defaults:
