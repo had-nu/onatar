@@ -1,0 +1,10 @@
+id: counterspell
+name: Counterspell
+level: 3
+school: abjuration
+data:
+  castingTime: reaction
+  range: 60 feet
+  duration: instantaneous
+  components: { somatic: true }
+  classes: [sorcerer, warlock, wizard]

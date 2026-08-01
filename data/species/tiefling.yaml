@@ -1,0 +1,14 @@
+id: tiefling
+name: Tiefling
+data:
+  size: Medium
+  speed: { walk: 30 }
+  creatureType: humanoid
+  languages: [Common, Infernal]
+  traits:
+    - name: Darkvision
+      description: "Darkvision 60 feet."
+    - name: Infernal Resistance
+      description: "Resistance to fire damage."
+    - name: Fiendish Legacy
+      description: "You channel your infernal heritage with a cantrip and a level 1 spell."

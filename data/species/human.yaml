@@ -1,0 +1,12 @@
+id: human
+name: Human
+data:
+  size: Medium
+  speed: { walk: 30 }
+  creatureType: humanoid
+  languages: [Common]
+  traits:
+    - name: Resourceful
+      description: "You gain one Heroic Inspiration after a Short or Long Rest."
+    - name: Skilled
+      description: "You gain proficiency in one skill of your choice."

@@ -1,0 +1,6 @@
+id: champion
+classId: fighter
+name: Champion
+levelRequired: 3
+data:
+  description: "A fighter who relies on raw physical prowess and superior athleticism."

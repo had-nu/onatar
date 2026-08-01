@@ -1,0 +1,22 @@
+id: sorcerer
+name: Sorcerer
+hitDie: d6
+spellcaster: true
+subclassLevel: 3
+primaryAbility: CHA
+suggestedSpecies:
+  - tiefling
+  - human
+  - elf
+suggestedBackgrounds:
+  - sage
+  - charlatan
+  - hermit
+data:
+  description: "A spellcaster who draws on inherent magic from a draconic bloodline, a psionic awakening, or other extraordinary origin."
+  savingThrows: [CON, CHA]
+  skills:
+    - skill: arcana
+      choose: 2
+      from: [arcana, deception, insight, intimidation, persuasion, religion]
+  weapons: [simple]

@@ -1,0 +1,18 @@
+id: metamagic
+classId: sorcerer
+name: Metamagic
+level: 3
+data:
+  description: "You gain the ability to twist your spells to suit your needs. You gain two Metamagic options of your choice."
+  choose: 2
+  options:
+    - Careful Spell
+    - Distant Spell
+    - Empowered Spell
+    - Extended Spell
+    - Heightened Spell
+    - Quickened Spell
+    - Seeking Spell
+    - Subtle Spell
+    - Transmuted Spell
+    - Twinned Spell

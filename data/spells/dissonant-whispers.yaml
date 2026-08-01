@@ -1,0 +1,11 @@
+id: dissonant-whispers
+name: Dissonant Whispers
+level: 1
+school: enchantment
+data:
+  castingTime: action
+  range: 60 feet
+  duration: instantaneous
+  components: { verbal: true }
+  damage: { type: psychic, dice: 3d6 }
+  classes: [bard, warlock]

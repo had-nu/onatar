@@ -1,0 +1,7 @@
+id: sage
+name: Sage
+data:
+  abilityScoreOptions: [CON, INT, WIS]
+  skills: [arcana, history]
+  tools: [calligraphers-supplies]
+  feature: "Researcher"

@@ -1,0 +1,28 @@
+# Go
+bin/
+*.test
+*.out
+coverage.out
+internal.out
+vendor/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.svelte-kit/
+frontend/.vite/
+
+# Env
+.env
+.env.local
+*.env
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Logs
+*.log
+server.log

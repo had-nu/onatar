@@ -1,0 +1,9 @@
+id: war-caster
+name: War Caster
+prerequisites:
+  spellcasting: true
+data:
+  description: "You have practiced casting spells in the midst of combat. You gain Advantage on Constitution saving throws to maintain Concentration."
+  effects:
+    - { kind: ConcentrationAdvantage }
+    - { kind: OpportunityAttackSpell }

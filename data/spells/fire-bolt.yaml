@@ -1,0 +1,11 @@
+id: fire-bolt
+name: Fire Bolt
+level: 0
+school: evocation
+data:
+  castingTime: action
+  range: 120 feet
+  duration: instantaneous
+  components: { verbal: true, somatic: true }
+  damage: { type: fire, dice: 1d10 }
+  attack: true

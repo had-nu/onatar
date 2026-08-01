@@ -1,0 +1,23 @@
+id: fighter
+name: Fighter
+hitDie: d10
+spellcaster: false
+subclassLevel: 3
+primaryAbility: STR
+suggestedSpecies:
+  - human
+  - dwarf
+  - goliath
+suggestedBackgrounds:
+  - guard
+  - soldier
+  - noble
+data:
+  description: "A master of martial combat, skilled with a variety of weapons and armor."
+  savingThrows: [STR, CON]
+  armor: [light, medium, heavy]
+  weapons: [simple, martial]
+  skills:
+    - skill: athletics
+      choose: 2
+      from: [acrobatics, animal-handling, athletics, history, insight, intimidation, perception, survival]

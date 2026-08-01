@@ -1,0 +1,6 @@
+id: ability-score-improvement
+name: Ability Score Improvement
+data:
+  description: "Increase one Ability Score by 2, or two Ability Scores by 1, to a maximum of 20."
+  effects:
+    - { kind: IncreaseScore, amount: 2 }

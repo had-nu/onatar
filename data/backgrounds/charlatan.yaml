@@ -1,0 +1,7 @@
+id: charlatan
+name: Charlatan
+data:
+  abilityScoreOptions: [DEX, CON, CHA]
+  skills: [deception, sleight-of-hand]
+  tools: [forgery-kit]
+  feature: "False Identity"

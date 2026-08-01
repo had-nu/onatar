@@ -1,0 +1,10 @@
+id: aberrant-sorcery
+classId: sorcerer
+name: Aberrant Sorcery
+levelRequired: 3
+recommendedSpells:
+  1: [arms-of-hadar, dissonant-whispers]
+  3: [detect-thoughts]
+  5: [telekinesis]
+data:
+  description: "A sorcerer whose power comes from a connection to the Far Realm."

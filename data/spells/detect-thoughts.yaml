@@ -1,0 +1,10 @@
+id: detect-thoughts
+name: Detect Thoughts
+level: 2
+school: divination
+data:
+  castingTime: action
+  range: self
+  duration: concentration, up to 1 minute
+  components: { verbal: true, somatic: true, material: true }
+  classes: [bard, sorcerer, wizard]

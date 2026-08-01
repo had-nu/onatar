@@ -1,0 +1,10 @@
+id: misty-step
+name: Misty Step
+level: 2
+school: conjuration
+data:
+  castingTime: bonus-action
+  range: self
+  duration: instantaneous
+  components: { verbal: true }
+  classes: [sorcerer, warlock, wizard]

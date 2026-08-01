@@ -1,0 +1,12 @@
+id: shield
+name: Shield
+level: 1
+school: abjuration
+data:
+  castingTime: reaction
+  range: self
+  duration: 1 round
+  components: { verbal: true, somatic: true }
+  effects:
+    - { kind: AddAC, value: 5 }
+  classes: [sorcerer, wizard]

@@ -1,0 +1,10 @@
+id: telekinesis
+name: Telekinesis
+level: 5
+school: transmutation
+data:
+  castingTime: action
+  range: 60 feet
+  duration: concentration, up to 10 minutes
+  components: { verbal: true, somatic: true }
+  classes: [sorcerer, wizard]

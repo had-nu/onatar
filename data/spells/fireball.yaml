@@ -1,0 +1,11 @@
+id: fireball
+name: Fireball
+level: 3
+school: evocation
+data:
+  castingTime: action
+  range: 150 feet
+  duration: instantaneous
+  components: { verbal: true, somatic: true, material: true }
+  damage: { type: fire, dice: 8d6 }
+  classes: [sorcerer, wizard]

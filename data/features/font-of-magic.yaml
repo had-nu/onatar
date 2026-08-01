@@ -1,0 +1,7 @@
+id: font-of-magic
+classId: sorcerer
+name: Font of Magic
+level: 2
+data:
+  description: "You gain Sorcery Points equal to your Sorcerer level, and can convert between Sorcery Points and spell slots."
+  resource: { name: Sorcery Points }

@@ -1,0 +1,11 @@
+id: magic-missile
+name: Magic Missile
+level: 1
+school: evocation
+data:
+  castingTime: action
+  range: 120 feet
+  duration: instantaneous
+  components: { verbal: true, somatic: true }
+  damage: { type: force, dice: "1d4+1" }
+  classes: [sorcerer, wizard]

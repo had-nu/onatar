@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (lint, vet, test, gosec)
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: onatar
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.1
+
+      - name: go vet
+        run: go vet ./cmd/... ./internal/...
+
+      - name: go build
+        run: go build ./cmd/... ./internal/...
+
+      - name: migrate (test DB)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: onatar
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+          $(go env GOPATH)/bin/migrate -path migrations \
+            -database 'mysql://root:root@tcp(127.0.0.1:3306)/onatar?multiStatements=true' up
+
+      - name: go test (coverage >= 70%)
+        env:
+          TEST_DB_DSN: root:root@tcp(127.0.0.1:3306)/onatar?parseTime=true
+        run: |
+          go test ./cmd/... ./internal/... -coverprofile=coverage.out
+          go tool cover -func=coverage.out
+          go test ./internal/... -coverprofile=internal.out
+          go tool cover -func=internal.out | tail -1
+
+      - name: coverage check
+        run: |
+          total=$(go tool cover -func=internal.out | tail -1 | awk '{print $3}' | tr -d '%')
+          echo "coverage=${total}%"
+          awk -v c="$total" 'BEGIN { if (c < 70) { print "FAIL: coverage below 70%"; exit 1 } else { print "OK: coverage >= 70%" } }'
+
+      - name: gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          $(go env GOPATH)/bin/gosec -no-fail ./cmd/... ./internal/...
+
+      - name: trivy repo scan
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+
+      - name: seed smoke (idempotent)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: onatar
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          go run ./cmd/seed
+          go run ./cmd/seed
+
+  frontend:
+    name: Frontend (typecheck, test, lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: typecheck (svelte-check + tsc)
+        run: npm run typecheck
+
+      - name: vitest run
+        run: npm run test
+
+      - name: eslint + prettier
+        run: npm run lint
+
+      - name: build
+        run: npm run build
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: onatar
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: onatar
+      DB_USER: root
+      DB_PASS: root
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: migrate (test DB)
+        run: |
+          go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+          $(go env GOPATH)/bin/migrate -path migrations \
+            -database 'mysql://root:root@tcp(127.0.0.1:3306)/onatar?multiStatements=true' up
+
+      - name: seed
+        run: go run ./cmd/seed
+
+      - name: build + start API
+        run: |
+          go build -o /tmp/onatar-server ./cmd/server
+          HTTP_ADDR=:8090 /tmp/onatar-server &
+          sleep 2
+          curl -fsS http://localhost:8090/health
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E
+        working-directory: frontend
+        run: npm run test:e2e

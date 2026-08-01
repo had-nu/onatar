@@ -1,0 +1,11 @@
+id: arms-of-hadar
+name: Arms of Hadar
+level: 1
+school: conjuration
+data:
+  castingTime: action
+  range: self
+  duration: instantaneous
+  components: { verbal: true, somatic: true }
+  damage: { type: necrotic, dice: 2d6 }
+  classes: [warlock]
