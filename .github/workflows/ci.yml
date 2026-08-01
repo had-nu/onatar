@@ -53,6 +53,17 @@ jobs:
           $(go env GOPATH)/bin/migrate -path migrations \
             -database 'mysql://root:root@tcp(127.0.0.1:3306)/onatar?multiStatements=true' up
 
+      - name: seed (idempotent)
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: onatar
+          DB_USER: root
+          DB_PASS: root
+        run: |
+          go run ./cmd/seed
+          go run ./cmd/seed
+
       - name: go test (coverage >= 70%)
         env:
           TEST_DB_DSN: root:root@tcp(127.0.0.1:3306)/onatar?parseTime=true
@@ -79,20 +90,9 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           severity: HIGH,CRITICAL
-          exit-code: '1'
+exit-code: '1'
 
-      - name: seed smoke (idempotent)
-        env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_NAME: onatar
-          DB_USER: root
-          DB_PASS: root
-        run: |
-          go run ./cmd/seed
-          go run ./cmd/seed
-
-  frontend:
+    frontend:
     name: Frontend (typecheck, test, lint)
     runs-on: ubuntu-latest
     defaults:
