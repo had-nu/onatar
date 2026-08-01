@@ -9,7 +9,6 @@
     nextStep,
     prevStep,
     redo,
-    saveCharacterFromWizard,
     setStep,
     step,
     undo,
@@ -38,11 +37,6 @@
     void loadContent(true)
       .then(() => (status = 'ready'))
       .catch(() => (status = 'error'))
-  }
-
-  function saveAndGo() {
-    const c = saveCharacterFromWizard()
-    if (c) navigate(`/characters/${c.id}`)
   }
 
   const current = $derived(step())
@@ -101,11 +95,7 @@
         <button class="btn" onclick={prevStep} disabled={builder.value.stepIndex === 0}>
           ← Anterior
         </button>
-        {#if current.id === 'review'}
-          <button class="btn primary" onclick={saveAndGo} disabled={!canGoNext()}>
-            Guardar personagem
-          </button>
-        {:else}
+        {#if current.id !== 'review'}
           <button class="btn primary" onclick={nextStep} disabled={!canGoNext()}>
             Continuar →
           </button>

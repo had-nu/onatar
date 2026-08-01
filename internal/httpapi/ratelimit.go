@@ -3,6 +3,7 @@ package httpapi
 import (
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -96,7 +97,25 @@ func (s *Server) rateLimit(next http.Handler) http.Handler {
 	})
 }
 
+// clientIP returns the client's IP address, respecting reverse-proxy headers.
+// Priority: X-Forwarded-For -> X-Real-IP -> RemoteAddr.
 func clientIP(r *http.Request) string {
+	// Check X-Forwarded-For (common behind reverse proxies like nginx)
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		// X-Forwarded-For can be a comma-separated list; use the first (client) IP
+		if idx := strings.Index(xff, ","); idx != -1 {
+			xff = xff[:idx]
+		}
+		xff = strings.TrimSpace(xff)
+		if xff != "" {
+			return xff
+		}
+	}
+	// Check X-Real-IP (alternative header used by some proxies)
+	if xri := r.Header.Get("X-Real-Ip"); xri != "" {
+		return xri
+	}
+	// Fallback to RemoteAddr
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr

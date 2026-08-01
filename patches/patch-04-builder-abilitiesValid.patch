@@ -1,0 +1,17 @@
+diff --git a/frontend/src/lib/builder.svelte.ts b/frontend/src/lib/builder.svelte.ts
+index 1234567..abcdefg 100644
+--- a/frontend/src/lib/builder.svelte.ts
++++ b/frontend/src/lib/builder.svelte.ts
+@@ -180,7 +180,10 @@ export function validateStep(id: StepId): boolean {
+ function abilitiesValid(s: BuilderState): boolean {
+   const a = s.abilities
+   if (a.method === 'point-buy') {
+     const spent = Object.values(a.pointBuy).reduce((acc, v) => acc + POINT_BUY_COST[v], 0)
+-    return spent <= POINT_BUY_BUDGET && Object.values(a.pointBuy).every((v) => v >= POINT_BUY_MIN)
++    const values = Object.values(a.pointBuy)
++    return spent <= POINT_BUY_BUDGET
++      && values.every((v) => v >= POINT_BUY_MIN)
++      && values.every((v) => v <= POINT_BUY_MAX)
+   }
+   const assigned = Object.values(a.assigned)
+   return assigned.length === ABILITIES.length && assigned.every((v) => typeof v === 'number')

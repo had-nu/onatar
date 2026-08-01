@@ -2,9 +2,25 @@
   // Step 6 — Review: name the character and confirm the build before saving.
   import { content } from '../../content.svelte'
   import { ABILITIES } from '../../types'
-  import { builder } from '../../builder.svelte'
+  import { builder, saveCharacterFromWizard, prevStep } from '../../builder.svelte'
+  import { navigate } from '../../router.svelte'
 
   const contentData = $derived(content.value)
+
+  let saving = $state(false)
+  let saveError = $state('')
+
+  async function handleSave() {
+    saving = true
+    saveError = ''
+    const c = await saveCharacterFromWizard()
+    saving = false
+    if (c) {
+      navigate(`/characters/${c.id}`)
+    } else {
+      saveError = 'Não foi possível guardar o personagem. Verifica os dados.'
+    }
+  }
 
   function classNames(): string {
     const classes = contentData?.classes ?? []
@@ -80,6 +96,21 @@
   {/if}
 </dl>
 
+<div class="actions">
+  <button onclick={prevStep}>Voltar</button>
+  <button onclick={handleSave} disabled={saving}>
+    {#if saving}
+      A guardar...
+    {:else}
+      Guardar personagem
+    {/if}
+  </button>
+</div>
+
+{#if saveError}
+  <p style="color: var(--danger)">{saveError}</p>
+{/if}
+
 <style>
   .muted {
     opacity: 0.7;
@@ -117,5 +148,37 @@
   }
   dd {
     margin: 0;
+  }
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .actions button {
+    font: inherit;
+    color: var(--text-h);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  .actions button:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .actions button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--text-on-accent, #fff);
+  }
+  .actions button.primary:hover:not(:disabled) {
+    filter: brightness(1.1);
   }
 </style>

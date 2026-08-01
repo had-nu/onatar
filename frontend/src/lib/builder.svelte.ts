@@ -2,8 +2,8 @@
 // the active step, per-step validation, and an undo/redo history.
 import { box } from './box.svelte'
 import { content } from './content.svelte'
-import { createCharacter } from './characters.svelte'
-import type { Ability, BuildRequest, Character, ClassInput } from './types'
+import { createCharacter, buildDraft } from './characters.svelte'
+import type { Ability, BuildRequest, Character, ClassInput, Sheet } from './types'
 
 export type StepId = 'class' | 'background' | 'species' | 'abilities' | 'equipment' | 'review'
 export type AbilityMethod = 'standard-array' | 'point-buy' | 'rolled'
@@ -216,7 +216,12 @@ function abilitiesValid(s: BuilderState): boolean {
   const a = s.abilities
   if (a.method === 'point-buy') {
     const spent = Object.values(a.pointBuy).reduce((acc, v) => acc + POINT_BUY_COST[v], 0)
-    return spent <= POINT_BUY_BUDGET && Object.values(a.pointBuy).every((v) => v >= POINT_BUY_MIN)
+    const values = Object.values(a.pointBuy)
+    return (
+      spent <= POINT_BUY_BUDGET &&
+      values.every((v) => v >= POINT_BUY_MIN) &&
+      values.every((v) => v <= POINT_BUY_MAX)
+    )
   }
   const assigned = Object.values(a.assigned)
   return assigned.length === ABILITIES.length && assigned.every((v) => typeof v === 'number')
@@ -389,9 +394,25 @@ export function recommendedSpells(): string[] {
 
 // --- save (RF-03) ---
 
-export function saveCharacterFromWizard(): Character | null {
+export async function saveCharacterFromWizard(): Promise<Character | null> {
   const s = builder.value
   if (!validateStep('review')) return null
   const draft: BuildRequest = { ...s.draft, name: s.name, equipment: s.equipment }
-  return createCharacter(draft)
+
+  // Calculate sheet via backend before saving (fixes F2)
+  let sheet: Sheet | undefined
+  try {
+    sheet = await buildDraft(draft)
+  } catch (err) {
+    // If backend is unreachable, save without sheet (will be calculated on next load)
+    console.warn('buildDraft failed, saving without sheet:', err)
+  }
+
+  const c = createCharacter(draft)
+  if (sheet) {
+    // Update the newly created character with the computed sheet
+    const { saveCharacter } = await import('./characters.svelte')
+    saveCharacter({ ...c, sheet })
+  }
+  return c
 }

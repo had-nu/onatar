@@ -1,27 +1,51 @@
-/* Onatar global styles. Theme is driven by a `data-theme` attribute on <html>:
-   - absent        -> follow system (prefers-color-scheme)
-   - data-theme=light -> always light
-   - data-theme=dark  -> always dark
-*/
+/* Onatar — D&D 2024 Theme (Parchment, Crimson, Gold) */
+/* Fonte oficial: Tiamat (copiar para public/fonts/tiamat/) */
+/* Fonte body: Source Sans 3 (Google Fonts) */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap');
+
+/* Fonte oficial D&D — Tiamat */
+@font-face {
+  font-family: 'Tiamat';
+  src: url('/fonts/tiamat/TiamatRegular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback para bold — Cinzel (Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap');
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --danger: #e5484d;
-  --danger-bg: rgba(229, 72, 77, 0.08);
-  --danger-border: rgba(229, 72, 77, 0.5);
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Tipografia — Tiamat é a fonte oficial D&D */
+  --font-display: 'Tiamat', 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Source Code Pro', ui-monospace, monospace;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Light — Pergaminho envelhecido */
+  --bg: #f5f0e8;
+  --bg-2: #ede7db;
+  --bg-card: #faf8f3;
+  --text: #3d3229;
+  --text-2: #5c5043;
+  --text-3: #8c7e6e;
+  --text-h: #2a2218;
+  --border: #d4c9b8;
+  --border-strong: #b8a88e;
+  --code-bg: #f0e9dc;
+  --accent: #8b0000; /* carmesim D&D */
+  --accent-bg: rgba(139, 0, 0, 0.08);
+  --accent-border: rgba(139, 0, 0, 0.4);
+  --gold: #c9a227; /* ouro envelhecido */
+  --gold-bg: rgba(201, 162, 39, 0.1);
+  --gold-border: rgba(201, 162, 39, 0.4);
+  --danger: #b80000;
+  --danger-bg: rgba(184, 0, 0, 0.08);
+  --danger-border: rgba(184, 0, 0, 0.4);
+  --shadow: rgba(61, 50, 41, 0.15) 0 10px 15px -3px, rgba(61, 50, 41, 0.08) 0 4px 6px -2px;
 
-  font: 18px/145% var(--sans);
+  font: 18px/145% var(--font-body);
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -38,29 +62,72 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --danger-bg: rgba(229, 72, 77, 0.15);
+    --bg: #1a1714;
+    --bg-2: #25211c;
+    --bg-card: #2e2923;
+    --text: #d4c9b8;
+    --text-2: #a89b8a;
+    --text-3: #7a6e5e;
+    --text-h: #e8e0d4;
+    --border: #3d3529;
+    --border-strong: #5a5040;
+    --code-bg: #25211c;
+    --accent: #c44; /* carmesim brilhante */
+    --accent-bg: rgba(204, 68, 68, 0.12);
+    --accent-border: rgba(204, 68, 68, 0.5);
+    --gold: #d4af37; /* ouro polido */
+    --gold-bg: rgba(212, 175, 55, 0.12);
+    --gold-border: rgba(212, 175, 55, 0.4);
+    --danger: #d44;
+    --danger-bg: rgba(212, 68, 68, 0.12);
+    --danger-border: rgba(212, 68, 68, 0.5);
     --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 }
 
+:root[data-theme='light'] {
+  --bg: #f5f0e8;
+  --bg-2: #ede7db;
+  --bg-card: #faf8f3;
+  --text: #3d3229;
+  --text-2: #5c5043;
+  --text-3: #8c7e6e;
+  --text-h: #2a2218;
+  --border: #d4c9b8;
+  --border-strong: #b8a88e;
+  --code-bg: #f0e9dc;
+  --accent: #8b0000;
+  --accent-bg: rgba(139, 0, 0, 0.08);
+  --accent-border: rgba(139, 0, 0, 0.4);
+  --gold: #c9a227;
+  --gold-bg: rgba(201, 162, 39, 0.1);
+  --gold-border: rgba(201, 162, 39, 0.4);
+  --danger: #b80000;
+  --danger-bg: rgba(184, 0, 0, 0.08);
+  --danger-border: rgba(184, 0, 0, 0.4);
+  --shadow: rgba(61, 50, 41, 0.15) 0 10px 15px -3px, rgba(61, 50, 41, 0.08) 0 4px 6px -2px;
+}
+
 :root[data-theme='dark'] {
-  --text: #9ca3af;
-  --text-h: #f3f4f6;
-  --bg: #16171d;
-  --border: #2e303a;
-  --code-bg: #1f2028;
-  --accent: #c084fc;
-  --accent-bg: rgba(192, 132, 252, 0.15);
-  --accent-border: rgba(192, 132, 252, 0.5);
-  --danger-bg: rgba(229, 72, 77, 0.15);
+  --bg: #1a1714;
+  --bg-2: #25211c;
+  --bg-card: #2e2923;
+  --text: #d4c9b8;
+  --text-2: #a89b8a;
+  --text-3: #7a6e5e;
+  --text-h: #e8e0d4;
+  --border: #3d3529;
+  --border-strong: #5a5040;
+  --code-bg: #25211c;
+  --accent: #c44;
+  --accent-bg: rgba(204, 68, 68, 0.12);
+  --accent-border: rgba(204, 68, 68, 0.5);
+  --gold: #d4af37;
+  --gold-bg: rgba(212, 175, 55, 0.12);
+  --gold-border: rgba(212, 175, 55, 0.4);
+  --danger: #d44;
+  --danger-bg: rgba(212, 68, 68, 0.12);
+  --danger-border: rgba(212, 68, 68, 0.5);
   --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
@@ -70,10 +137,13 @@ body {
 
 h1,
 h2,
-h3 {
-  font-family: var(--sans);
-  font-weight: 600;
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-h);
+  font-weight: 600;
+  font-family: var(--font-display);
 }
 
 p {
@@ -82,6 +152,32 @@ p {
 
 a {
   color: var(--accent);
+}
+
+/* Spell school accents */
+.school-abjuration {
+  color: #5c9cff;
+}
+.school-conjuration {
+  color: #ff6b5c;
+}
+.school-divination {
+  color: #ffd65c;
+}
+.school-enchantment {
+  color: #c85cff;
+}
+.school-evocation {
+  color: #ff5c5c;
+}
+.school-illusion {
+  color: #5cffff;
+}
+.school-necromancy {
+  color: #5cff5c;
+}
+.school-transmutation {
+  color: #ff5cff;
 }
 
 /* ---- utility classes ---- */
@@ -120,13 +216,24 @@ a {
   background: var(--danger-bg);
 }
 
+.btn.gold {
+  color: #2a2218;
+  background: var(--gold);
+  border-color: var(--gold-border);
+}
+
+.btn.gold:hover {
+  filter: brightness(1.05);
+}
+
 .card {
-  background: var(--code-bg);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1rem 1.25rem;
   height: 100%;
   box-sizing: border-box;
+  box-shadow: var(--shadow);
 }
 
 .badge {
@@ -151,4 +258,16 @@ a {
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
+}
+
+.chip.on {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.chip.gold {
+  color: #2a2218;
+  background: var(--gold-bg);
+  border-color: var(--gold-border);
 }

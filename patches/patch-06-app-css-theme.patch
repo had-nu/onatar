@@ -1,0 +1,98 @@
+diff --git a/frontend/src/app.css b/frontend/src/app.css
+index 1234567..abcdefg 100644
+--- a/frontend/src/app.css
++++ b/frontend/src/app.css
+@@ -1,15 +1,28 @@
+-/* app.css — Onatar design tokens */
++/* app.css — Onatar design tokens (D&D 2024 theme) */
++/* Assets locais: /home/hadnu/workspace/homelab/dnd-project/dnd-arts/ */
++/* Fonte oficial: Tiamat (copiar para public/fonts/) */
+
+ :root {
+-  --sans: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
++  /* Tipografia — Tiamat é a fonte oficial D&D */
++  --font-display: 'Tiamat', 'Cinzel', Georgia, 'Times New Roman', serif;
++  --font-body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
++  --font-mono: 'Source Code Pro', ui-monospace, monospace;
+
+-  /* Light */
+-  --bg: #fff;
+-  --bg-2: #f6f7f9;
+-  --text: #0b0d11;
+-  --text-2: #4a4f5a;
+-  --text-3: #8b919d;
+-  --border: #e2e4e9;
+-  --accent: #aa3bff;
++  /* Light — Pergaminho envelhecido */
++  --bg: #f5f0e8;
++  --bg-2: #ede7db;
++  --bg-card: #faf8f3;
++  --text: #3d3229;
++  --text-2: #5c5043;
++  --text-3: #8c7e6e;
++  --border: #d4c9b8;
++  --border-strong: #b8a88e;
++  --accent: #8b0000;        /* carmesim D&D */
++  --accent-bg: rgba(139, 0, 0, 0.08);
++  --gold: #c9a227;          /* ouro envelhecido */
++  --gold-bg: rgba(201, 162, 39, 0.1);
++  --gold-border: rgba(201, 162, 39, 0.4);
+
+   /* Dark */
+-  --bg-d: #0b0d11;
+-  --bg-2-d: #14161c;
+-  --text-d: #e8eaef;
+-  --text-2-d: #a4a9b4;
+-  --text-3-d: #6b7180;
+-  --border-d: #242830;
+-  --accent-d: #c77aff;
++  --bg-d: #1a1714;
++  --bg-2-d: #25211c;
++  --bg-card-d: #2e2923;
++  --text-d: #d4c9b8;
++  --text-2-d: #a89b8a;
++  --text-3-d: #7a6e5e;
++  --border-d: #3d3529;
++  --border-strong-d: #5a5040;
++  --accent-d: #c44;         /* carmesim brilhante */
++  --accent-bg-d: rgba(204, 68, 68, 0.12);
++  --gold-d: #d4af37;        /* ouro polido */
++  --gold-bg-d: rgba(212, 175, 55, 0.12);
+ }
+
+ [data-theme="dark"] {
+@@ -35,6 +48,9 @@
+   --text-3: var(--text-3-d);
+   --border: var(--border-d);
+   --accent: var(--accent-d);
++  --accent-bg: var(--accent-bg-d);
++  --gold: var(--gold-d);
++  --gold-bg: var(--gold-bg-d);
+ }
+
+ /* Spell school accents */
+@@ -51,12 +67,12 @@
+
+ /* Base */
+ html {
+-  font-family: var(--sans);
++  font-family: var(--font-body);
+   background: var(--bg);
+   color: var(--text);
+ }
+
+ body {
+-  font-family: var(--sans);
++  font-family: var(--font-body);
+   background: var(--bg);
+   color: var(--text);
+ }
+@@ -65,6 +81,7 @@ body {
+ h1, h2, h3, h4, h5, h6 {
+   color: var(--text);
+   font-weight: 600;
++  font-family: var(--font-display);
+ }
+
+ a {

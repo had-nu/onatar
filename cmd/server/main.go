@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -46,8 +49,26 @@ func main() {
 	}
 	// #nosec G706 -- HTTPAddr comes from HTTP_ADDR env, operator-controlled.
 	slog.Info("onatar server listening", "addr", cfg.HTTPAddr)
-	if err := s.ListenAndServe(); err != nil {
-		slog.Error("server stopped", "error", err)
+
+	// Graceful shutdown (fixes B5)
+	go func() {
+		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("server listen error", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	slog.Info("server shutting down gracefully...")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := s.Shutdown(ctx); err != nil {
+		slog.Error("server forced shutdown", "error", err)
 		os.Exit(1)
 	}
+	slog.Info("server stopped")
 }

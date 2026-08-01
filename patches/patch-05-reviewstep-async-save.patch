@@ -1,0 +1,42 @@
+diff --git a/frontend/src/lib/views/builder/ReviewStep.svelte b/frontend/src/lib/views/builder/ReviewStep.svelte
+index 1234567..abcdefg 100644
+--- a/frontend/src/lib/views/builder/ReviewStep.svelte
++++ b/frontend/src/lib/views/builder/ReviewStep.svelte
+@@ -1,5 +1,18 @@
+ <script lang="ts">
+   import { builder, saveCharacterFromWizard, prevStep } from '../../builder.svelte'
++  import { goto } from '../../router.svelte'
++
++  let saving = $state(false)
++  let saveError = $state('')
++
++  async function handleSave() {
++    saving = true
++    saveError = ''
++    const c = await saveCharacterFromWizard()
++    saving = false
++    if (c) {
++      goto(`/characters/${c.id}`)
++    } else {
++      saveError = 'Não foi possível guardar o personagem. Verifica os dados.'
++    }
++  }
+ </script>
+
+ <h2>Revisão</h2>
+@@ -20,5 +33,15 @@
+   <button onclick={prevStep}>Voltar</button>
+-  <button onclick={() => { saveCharacterFromWizard(); goto('/characters') }}>
+-    Guardar personagem
++  <button onclick={handleSave} disabled={saving}>
++    {#if saving}
++      A guardar...
++    {:else}
++      Guardar personagem
++    {/if}
+   </button>
+ </div>
++
++{#if saveError}
++  <p style="color: var(--danger)">{saveError}</p>
++{/if}

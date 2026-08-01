@@ -1,0 +1,40 @@
+diff --git a/frontend/src/lib/builder.svelte.ts b/frontend/src/lib/builder.svelte.ts
+index 1234567..abcdefg 100644
+--- a/frontend/src/lib/builder.svelte.ts
++++ b/frontend/src/lib/builder.svelte.ts
+@@ -1,6 +1,6 @@
+ // Builder wizard store (PRD §3.4 / RF-01). Holds the in-progress BuildRequest,
+ // the active step, per-step validation, and an undo/redo history.
+ import { box } from './box.svelte'
+ import { content } from './content.svelte'
+-import { createCharacter } from './characters.svelte'
++import { createCharacter, buildDraft } from './characters.svelte'
+ import type { Ability, BuildRequest, Character, ClassInput } from './types'
+
+@@ -254,8 +254,23 @@ export function recommendedSpells(): string[] {
+ // --- save (RF-03) ---
+
+-export function saveCharacterFromWizard(): Character | null {
++export async function saveCharacterFromWizard(): Promise<Character | null> {
+   const s = builder.value
+   if (!validateStep('review')) return null
+   const draft: BuildRequest = { ...s.draft, name: s.name, equipment: s.equipment }
+-  return createCharacter(draft)
++
++  // Calculate sheet via backend before saving (fixes F2)
++  let sheet: Sheet | undefined
++  try {
++    sheet = await buildDraft(draft)
++  } catch (err) {
++    // If backend is unreachable, save without sheet (will be calculated on next load)
++    console.warn('buildDraft failed, saving without sheet:', err)
++  }
++
++  const c = createCharacter(draft)
++  if (sheet) {
++    // Update the newly created character with the computed sheet
++    const { saveCharacter } = await import('./characters.svelte')
++    saveCharacter({ ...c, sheet })
++  }
++  return c
+ }

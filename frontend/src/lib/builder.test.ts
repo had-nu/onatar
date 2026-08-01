@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   POINT_BUY_BUDGET,
   POINT_BUY_MAX,
@@ -28,8 +28,78 @@ import {
   undo,
   validateStep,
 } from './builder.svelte'
+
+// Mock characters store for tests
+const {
+  mockCharacters,
+  mockCreateCharacter,
+  mockSaveCharacter,
+  mockStarterDraft,
+  mockBuildDraft,
+  mockResetCharacters,
+} = vi.hoisted(() => {
+  const mockCharacters = { value: [] as import('./characters.svelte').Character[] }
+  return {
+    mockCharacters,
+    mockCreateCharacter: vi.fn((draft: import('./characters.svelte').BuildRequest) => {
+      const c = {
+        id: 'test-id',
+        name: draft.name || 'Novo personagem',
+        isNpc: draft.isNpc ?? false,
+        draft,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }
+      mockCharacters.value.push(c)
+      return c
+    }),
+    mockSaveCharacter: vi.fn((c: import('./characters.svelte').Character) => c),
+    mockStarterDraft: vi.fn(() => ({
+      name: 'Novo personagem',
+      classes: [{ id: 'fighter', level: 1 }],
+      speciesId: 'human',
+      backgroundId: 'sage',
+      abilityScores: { STR: 15, DEX: 13, CON: 14, INT: 10, WIS: 12, CHA: 8 },
+      abilityMethod: 'standard-array',
+      skills: [],
+      spells: [],
+      feats: [],
+      isNpc: false,
+    })),
+    mockBuildDraft: vi.fn().mockResolvedValue({
+      level: 1,
+      hp: { max: 10, current: 10 },
+      ac: 12,
+      proficiencyBonus: 2,
+      spellSlots: [2, 0, 0, 0, 0, 0, 0, 0, 0],
+      abilities: {
+        STR: { score: 8, mod: -1 },
+        DEX: { score: 14, mod: 2 },
+        CON: { score: 13, mod: 1 },
+        INT: { score: 12, mod: 1 },
+        WIS: { score: 10, mod: 0 },
+        CHA: { score: 15, mod: 2 },
+      },
+      features: [],
+      pendingChoices: [],
+    }),
+    mockResetCharacters: vi.fn(() => {
+      mockCharacters.value = []
+    }),
+  }
+})
+
+// Mock buildDraft to avoid network calls in tests
+vi.mock('./characters.svelte', () => ({
+  buildDraft: mockBuildDraft,
+  _resetCharacters: mockResetCharacters,
+  createCharacter: mockCreateCharacter,
+  saveCharacter: mockSaveCharacter,
+  starterDraft: mockStarterDraft,
+  characters: mockCharacters,
+}))
 import { _resetContent } from './content.svelte'
-import { _resetCharacters, characters, starterDraft } from './characters.svelte'
+import { starterDraft } from './characters.svelte'
 import type { Content } from './types'
 
 const fixture: Content = {
@@ -73,7 +143,7 @@ function seedContent() {
 beforeEach(() => {
   seedContent()
   _resetBuilder()
-  _resetCharacters()
+  mockResetCharacters()
 })
 
 describe('steps', () => {
@@ -258,22 +328,22 @@ describe('save', () => {
     builder.value.name = 'Onatar'
   }
 
-  it('saves the character and clears via createCharacter', () => {
+  it('saves the character and clears via createCharacter', async () => {
     buildValidWizard()
     expect(validateStep('review')).toBe(true)
     expect(canGoNext()).toBe(true)
-    const c = saveCharacterFromWizard()
+    const c = await saveCharacterFromWizard()
     expect(c).not.toBeNull()
     expect(c!.draft.classes[0].id).toBe('sorcerer')
     expect(c!.draft.spells).toEqual(['magic-missile'])
     expect(c!.draft.equipment).toEqual(['Book'])
-    expect(characters.value).toHaveLength(1)
+    expect(mockCharacters.value).toHaveLength(1)
   })
 
-  it('does not save without a name', () => {
+  it('does not save without a name', async () => {
     buildValidWizard()
     builder.value.name = ''
-    expect(saveCharacterFromWizard()).toBeNull()
+    expect(await saveCharacterFromWizard()).toBeNull()
   })
 })
 
