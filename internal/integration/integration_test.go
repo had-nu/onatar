@@ -57,7 +57,7 @@ func doJSON(t *testing.T, method, url string, body any) (int, map[string]any) {
 	if err != nil {
 		t.Fatalf("do request: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	var out map[string]any
 	if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
 		t.Fatalf("decode response: %v", err)
@@ -71,7 +71,7 @@ func TestHealth(t *testing.T) {
 	if err != nil {
 		t.Fatalf("get health: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("health status = %d, want 200", res.StatusCode)
 	}
