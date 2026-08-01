@@ -3,6 +3,8 @@
 import { box } from './box.svelte'
 import type { BuildRequest, Character, Sheet, SheetLive } from './types'
 
+export type { BuildRequest, Character, Sheet, SheetLive } from './types'
+
 const KEY = 'onatar.characters'
 
 function readAll(): Character[] {
