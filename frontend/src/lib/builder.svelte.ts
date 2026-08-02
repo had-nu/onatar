@@ -2,8 +2,9 @@ import type {
   AbilityScores, BuildRequest, BuildResponse, CharacterSheet,
   ChoicePoint, BuilderSnapshot, ClassEntry, SpeciesEntry, BackgroundEntry, SpellEntry
 } from './types';
-import { mockClasses, mockSpecies, mockBackgrounds, mockSpells } from './mockData';
 import { box } from './box.svelte';
+import { loadContent } from './content.svelte';
+import { content } from './content.svelte';
 
 const defaultAbilities: AbilityScores = { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 };
 
@@ -34,11 +35,81 @@ const MAX_HISTORY = 50;
 let history = $state<BuilderSnapshot[]>([{ draft: initialDraft(), step: 0, timestamp: Date.now() }]);
 let historyIndex = $state(0);
 
-// Content cache (mock or fetched)
-export const classes = box<ClassEntry[]>(mockClasses);
-export const species = box<SpeciesEntry[]>(mockSpecies);
-export const backgrounds = box<BackgroundEntry[]>(mockBackgrounds);
-export const spells = box<SpellEntry[]>(mockSpells);
+// Content cache (from content store, with mock fallback)
+export const classes = box<ClassEntry[]>([]);
+export const species = box<SpeciesEntry[]>([]);
+export const backgrounds = box<BackgroundEntry[]>([]);
+export const spells = box<SpellEntry[]>([]);
+
+// Load content on initialization
+async function initializeContent() {
+  try {
+    const data = await loadContent();
+    classes.value = data.classes.map(c => ({
+      id: c.id,
+      name: c.name,
+      hitDie: c.hitDie ? parseInt(c.hitDie.replace('d', '')) : 8,
+      spellcaster: c.spellcaster,
+      primaryAbility: c.data?.primaryAbility ? [c.data.primaryAbility] : [],
+      savingThrows: c.data?.savingThrows || [],
+      subclassLevel: c.subclassLevel,
+      subClasses: c.subclasses?.filter(sc => sc.classId === c.id).map(sc => ({
+        id: sc.id,
+        name: sc.name,
+        description: sc.data?.description || ''
+      })) || [],
+      features: c.data?.features?.map(f => ({
+        name: f.name,
+        level: f.level,
+        description: f.description || ''
+      })) || [],
+      spellcasting: c.spellcaster && c.data?.spellcasting ? {
+        ability: c.data.spellcasting.ability,
+        preparedSpells: c.data.spellcasting.preparedSpells || [],
+        knownSpells: c.data.spellcasting.knownSpells || false,
+        slots: c.data.spellcasting.slots || {}
+      } : null,
+      skillChoices: c.data?.skillChoices || { count: 0, from: [] }
+    }));
+
+    species.value = data.species.map(s => ({
+      id: s.id,
+      name: s.name,
+      description: s.data?.description || '',
+      traits: s.data?.traits || [],
+      abilityBonuses: s.data?.abilityScores || {},
+      size: s.data?.size || 'Medium',
+      speed: s.data?.speed || 30,
+      languages: s.data?.languages || ['Common'],
+      variants: s.data?.variants || []
+    }));
+
+    backgrounds.value = data.backgrounds.map(b => ({
+      id: b.id,
+      name: b.name,
+      description: b.data?.description || '',
+      skillProficiencies: b.data?.skillProficiencies || [],
+      toolProficiencies: b.data?.toolProficiencies || [],
+      languages: b.data?.languages || 0,
+      equipment: b.data?.equipment || [],
+      feature: b.data?.feature || { name: '', description: '' }
+    }));
+
+    spells.value = data.spells.map(s => ({
+      id: s.id,
+      name: s.name,
+      level: s.level,
+      school: s.school,
+      description: s.data?.description || ''
+    }));
+  } catch (err) {
+    console.warn('Failed to load content, using mock data:', err);
+    // Fallback to mock data is already set as initial values
+  }
+}
+
+// Initialize content on module load
+initializeContent();
 
 // ─── Derived ───────────────────────────────────────────────
 export function getTotalLevel() { return draft.value.classes.reduce((s, c) => s + c.level, 0); }

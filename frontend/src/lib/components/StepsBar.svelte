@@ -5,7 +5,7 @@
   interface Props { steps: Step[]; }
   let { steps }: Props = $props();
 
-  const stepLabels = ['Classe', 'Background', 'Espécie', 'Atributos', 'Equipamento', 'Revisão'];
+  const stepLabels = ['Class', 'Background', 'Species', 'Abilities', 'Equipment', 'Review'];
 </script>
 
 <div class="chrome">

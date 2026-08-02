@@ -10,7 +10,7 @@
 <aside class="preview-sidebar">
   <div class="ps-header">
     <span class="ps-dot" class:ps-dot-loading={isLoading}></span>
-    <h3>Pré-visualização</h3>
+    <h3>Preview</h3>
   </div>
 
   <div class="ps-body">
@@ -18,15 +18,15 @@
       <div class="ps-empty">
         {#if isLoading}
           <div class="ps-spinner"></div>
-          <p>A calcular...</p>
+          <p>Calculating…</p>
         {:else}
-          <p>Completa os passos anteriores para ver a pré-visualização.</p>
+          <p>Complete previous steps to see live preview.</p>
         {/if}
       </div>
     {:else}
       <div class="ps-name">{preview.name}</div>
       <div class="ps-sub">
-        {getSpeciesDef()?.name || '—'} · {getClassDef()?.name || '—'} · Nível {getTotalLevel()}
+        {getSpeciesDef()?.name || '—'} · {getClassDef()?.name || '—'} · Level {getTotalLevel()}
       </div>
 
       <div class="ps-stats">
@@ -47,7 +47,7 @@
       <div class="ps-divider"></div>
 
       <div class="ps-section">
-        <h4>Atributos</h4>
+        <h4>Abilities</h4>
         <div class="ps-abilities">
           {#each Object.entries(preview.abilities) as [ab, score]}
             <div class="ps-ability">
@@ -59,9 +59,9 @@
         </div>
       </div>
 
-{#if preview.savingThrows && Object.keys(preview.savingThrows).length > 0}
+      {#if preview.savingThrows && Object.keys(preview.savingThrows).length > 0}
         <div class="ps-section">
-          <h4>Salvaguardas</h4>
+          <h4>Saving Throws</h4>
           <div class="ps-list">
             {#each Object.entries(preview.savingThrows).filter(([,v]) => v.proficient) as [ab]}
               <div class="ps-item">{ab}</div>
@@ -72,13 +72,13 @@
 
       {#if preview.features && preview.features.length > 0}
         <div class="ps-section">
-          <h4>Características</h4>
+          <h4>Features</h4>
           <div class="ps-list">
             {#each preview.features.slice(0, 6) as feat}
               <div class="ps-item">{feat}</div>
             {/each}
             {#if preview.features.length > 6}
-              <div class="ps-item ps-item-more">+{preview.features.length - 6} mais</div>
+              <div class="ps-item ps-item-more">+{preview.features.length - 6} more</div>
             {/if}
           </div>
         </div>
@@ -86,7 +86,7 @@
 
       {#if preview.spellSlots && Object.keys(preview.spellSlots).length > 0}
         <div class="ps-section">
-          <h4>Espaços de magia</h4>
+          <h4>Spell Slots</h4>
           <div class="ps-slots">
             {#each Object.entries(preview.spellSlots).filter(([,c]) => c > 0) as [lvl, count]}
               <div class="ps-slot">

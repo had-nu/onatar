@@ -13,12 +13,12 @@
   }
 
   const links: NavLink[] = [
-    { path: '/', label: 'Início', match: ['home'] },
-    { path: '/characters', label: 'Personagens', match: ['characters', 'character'], auth: true },
-    { path: '/content', label: 'Conteúdo', match: ['content'] },
-    { path: '/campaigns', label: 'Campanhas', match: ['campaigns'], auth: true },
-    { path: '/import', label: 'Importar', match: ['import'], auth: true },
-    { path: '/combat', label: 'Combate', match: ['combat'], auth: true },
+    { path: '/', label: 'Home', match: ['home'] },
+    { path: '/characters', label: 'Characters', match: ['characters', 'character'], auth: true },
+    { path: '/content', label: 'Content', match: ['content'] },
+    { path: '/campaigns', label: 'Campaigns', match: ['campaigns'], auth: true },
+    { path: '/import', label: 'Import', match: ['import'], auth: true },
+    { path: '/combat', label: 'Combat', match: ['combat'], auth: true },
   ]
 
   function isActive(match: RouteName[]): boolean {
@@ -26,7 +26,7 @@
   }
 
   function themeLabel(): string {
-    return theme.value === 'system' ? 'Sistema' : theme.value === 'light' ? 'Claro' : 'Escuro'
+    return theme.value === 'system' ? 'System' : theme.value === 'light' ? 'Light' : 'Dark'
   }
 
   function userInitials(name: string | null, login: string): string {
@@ -58,10 +58,10 @@
       {themeLabel()}
     </button>
     {#if isLoading()}
-      <div class="avatar-loading" aria-busy="true" aria-label="A carregar utilizador…"></div>
+      <div class="avatar-loading" aria-busy="true" aria-label="Loading user…"></div>
     {:else if isAuthenticated()}
       <div class="user-menu">
-        <button class="avatar-btn" aria-expanded="false" aria-haspopup="true" aria-label="Menu do utilizador">
+        <button class="avatar-btn" aria-expanded="false" aria-haspopup="true" aria-label="User menu">
           <span class="avatar" style="background-image: url('{getUser()?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userInitials(getUser()?.name, getUser()?.login))}&background=8b0000&color=fff`}')"></span>
         </button>
         <div class="user-dropdown" role="menu">
@@ -76,12 +76,12 @@
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
-            Sair
+            Sign out
           </button>
         </div>
       </div>
     {:else}
-      <a class="btn primary" href="#/login">Entrar</a>
+      <a class="btn primary" href="#/login">Sign in</a>
     {/if}
   </div>
 </header>
@@ -210,7 +210,7 @@
   }
   .dropdown-divider {
     border: none;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border)
     margin: 0
   }
   .dropdown-item {
@@ -219,16 +219,16 @@
     gap: 0.5rem;
     width: 100%;
     padding: 0.5rem 1rem;
-    border: none;
-    background: none;
-    color: var(--text);
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
+    border: none
+    background: none
+    color: var(--text)
+    font: inherit
+    text-align: left
+    cursor: pointer
   }
   .dropdown-item:hover {
-    background: var(--accent-bg);
-    color: var(--accent);
+    background: var(--accent-bg)
+    color: var(--accent)
   }
   .dropdown-item svg {
     flex-shrink: 0

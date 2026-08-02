@@ -156,51 +156,51 @@
   }
   .tabs button {
     font: inherit;
-    padding: 0.4rem 1rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--code-bg);
-    color: var(--text);
-    cursor: pointer;
+    padding: 0.4rem 1rem
+    border-radius: 999px
+    border: 1px solid var(--border)
+    background: var(--code-bg)
+    color: var(--text)
+    cursor: pointer
   }
   .tabs button.active {
-    color: var(--accent);
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
+    color: var(--accent)
+    background: var(--accent-bg)
+    border-color: var(--accent-border)
   }
   .grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    gap: 1rem;
+    list-style: none
+    margin: 0
+    padding: 0
+    display: grid
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr))
+    gap: 1rem
   }
   h2 {
-    margin: 0 0 0.5rem;
-    color: var(--text-h);
+    margin: 0 0 0.5rem
+    color: var(--text-h)
   }
   .badges,
   .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin: 0.4rem 0;
+    display: flex
+    flex-wrap: wrap
+    gap: 0.35rem
+    margin: 0.4rem 0
   }
   .chips-label {
-    margin: 0.75rem 0 0.25rem;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.6;
+    margin: 0.75rem 0 0.25rem
+    font-size: 0.75rem
+    text-transform: uppercase
+    letter-spacing: 0.05em
+    opacity: 0.6
   }
   .error-box {
-    border: 1px solid var(--danger-border, #e5484d);
-    background: var(--danger-bg, rgba(229, 72, 77, 0.08));
-    border-radius: 8px;
-    padding: 1.25rem;
-    display: grid;
-    gap: 0.75rem;
-    justify-items: start;
+    border: 1px solid var(--danger-border, #e5484d)
+    background: var(--danger-bg, rgba(229, 72, 77, 0.08))
+    border-radius: 8px
+    padding: 1.25rem
+    display: grid
+    gap: 0.75rem
+    justify-items: start
   }
 </style>

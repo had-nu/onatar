@@ -9,8 +9,8 @@
 </script>
 
 <div class="step-species">
-  <h2 class="step-title">Escolhe a tua espécie</h2>
-  <p class="step-desc">A espécie define a tua herança, traços raciais e bónus de atributos.</p>
+  <h2 class="step-title">Choose Your Species</h2>
+  <p class="step-desc">Your species defines your heritage, racial traits, and ability bonuses.</p>
 
   <div class="species-grid">
     {#each species as sp}
@@ -42,7 +42,7 @@
 
   {#if speciesDef?.variants && speciesDef.variants.length > 0}
     <div class="variant-section">
-      <h3 class="variant-title">Variante</h3>
+      <h3 class="variant-title">Variant</h3>
       <div class="variant-grid">
         {#each speciesDef.variants as v}
           <Card

@@ -4,14 +4,14 @@
 
   const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
   const abilityNames: Record<string, string> = {
-    STR: 'Força', DEX: 'Destreza', CON: 'Constituição',
-    INT: 'Inteligência', WIS: 'Sabedoria', CHA: 'Carisma',
+    STR: 'Strength', DEX: 'Dexterity', CON: 'Constitution',
+    INT: 'Intelligence', WIS: 'Wisdom', CHA: 'Charisma',
   };
 
-const methods = [
-    { id: 'standard' as const, name: 'Array Padrão', desc: '15, 14, 13, 12, 10, 8' },
-    { id: 'point-buy' as const, name: 'Compra de Pontos', desc: '27 pontos para gastar' },
-    { id: 'roll' as const, name: 'Rolar 4d6', desc: 'Lança os dados' },
+  const methods = [
+    { id: 'standard' as const, name: 'Standard Array', desc: '15, 14, 13, 12, 10, 8' },
+    { id: 'point-buy' as const, name: 'Point Buy', desc: '27 points to spend' },
+    { id: 'roll' as const, name: 'Roll 4d6', desc: 'Roll the dice' },
   ];
 
   const standardPool = [15, 14, 13, 12, 10, 8];
@@ -70,8 +70,8 @@ const methods = [
 </script>
 
 <div class="step-abilities">
-  <h2 class="step-title">Distribui os atributos</h2>
-  <p class="step-desc">Os seis atributos definem as capacidades físicas e mentais da tua personagem.</p>
+  <h2 class="step-title">Assign Abilities</h2>
+  <p class="step-desc">The six abilities define your character's physical and mental capabilities.</p>
 
   <!-- Method tabs -->
   <div class="method-tabs">
@@ -90,7 +90,7 @@ const methods = [
   <!-- Pool chips -->
   {#if draft.abilityMethod === 'standard'}
     <div class="pool">
-      <div class="pool-label">Valores disponíveis <span class="pool-hint">— clica para atribuir</span></div>
+      <div class="pool-label">Available values <span class="pool-hint">— click to assign</span></div>
       <div class="pool-chips">
         {#each poolChips() as chip}
           <button
@@ -107,7 +107,7 @@ const methods = [
   {:else if draft.abilityMethod === 'point-buy'}
     <div class="pool">
       <div class="pool-label">
-        Pontos gastos:
+        Points spent:
         <span class="pb-total" class:pb-over={totalPointBuy() > 27}>
           {totalPointBuy()} / 27
         </span>
@@ -129,8 +129,8 @@ const methods = [
     </div>
   {:else if draft.abilityMethod === 'roll'}
     <div class="roll-area">
-      <Button variant="primary" onclick={rollAll}>🎲 Lançar 4d6 (drop lowest)</Button>
-      <p class="roll-hint">Clica para lançar os dados para todos os atributos.</p>
+      <Button variant="primary" onclick={rollAll}>🎲 Roll 4d6 (drop lowest)</Button>
+      <p class="roll-hint">Click to roll dice for all abilities.</p>
     </div>
   {/if}
 
@@ -158,7 +158,7 @@ const methods = [
 
   {#if draft.abilityMethod === 'point-buy' && totalPointBuy() > 27}
     <div class="pb-warning">
-      ⚠ Ultrapassaste o limite de 27 pontos. Reduz alguns atributos.
+      ⚠ Exceeded 27 point limit. Reduce some abilities.
     </div>
   {/if}
 </div>

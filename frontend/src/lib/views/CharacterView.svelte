@@ -382,8 +382,8 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text-h);
-    cursor: pointer
-    vertical-align: middle
+    cursor: pointer;
+    vertical-align: middle;
   }
   h2 {
     color: var(--text-h);
@@ -395,43 +395,43 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
-    gap: 0.5rem
+    gap: 0.5rem;
   }
   .abilities li {
     display: flex;
     flex-direction: column;
-    align-items: center
-    gap: 0.15rem
-    background: var(--code-bg)
-    border: 1px solid var(--border)
-    border-radius: 8px
-    padding: 0.6rem
+    align-items: center;
+    gap: 0.15rem;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
   }
   .ability-name {
-    font-size: 0.75rem
-    font-weight: 700
-    opacity: 0.7
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.7;
   }
   .ability-score {
-    font-size: 1.4rem
-    font-weight: 700
-    color: var(--text-h)
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-h);
   }
   .ability-mod {
-    color: var(--accent)
+    color: var(--accent);
   }
   .slots {
-    list-style: none
-    margin: 0 0 1.5rem
-    padding: 0
-    display: flex
-    gap: 0.5rem
-    flex-wrap: wrap
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .slot {
-    font: inherit
-    display: flex
-    align-items: baseline
+    font: inherit;
+    display: flex;
+    align-items: baseline;
     gap: 0.5rem
     background: var(--code-bg)
     border: 1px solid var(--border)
@@ -444,7 +444,7 @@
     border-color: var(--accent-border)
   }
   .slot-lvl {
-    font-size: 0.75rem
+    font-size: 0.75rem;
     opacity: 0.7
   }
   .slot-count {

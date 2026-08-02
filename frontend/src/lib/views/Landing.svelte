@@ -5,8 +5,8 @@
 
   const stats = [
     { value: 2, label: 'Classes' },
-    { value: 2, label: 'Species' },
-    { value: 2, label: 'Backgrounds' },
+    { value: 4, label: 'Species' },
+    { value: 4, label: 'Backgrounds' },
     { value: 0, label: 'Characters Created' },
   ];
 
