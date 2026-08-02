@@ -8,8 +8,8 @@
 </script>
 
 <div class="step-bg">
-  <h2 class="step-title">Choose Your Background</h2>
-  <p class="step-desc">Your background defines your history, proficiencies, and starting equipment.</p>
+  <h2 class="step-title">Escolhe o teu background</h2>
+  <p class="step-desc">O background define a tua história, as tuas proficiências e o teu equipamento inicial.</p>
 
   <div class="bg-grid">
     {#each backgrounds as bg}
@@ -30,7 +30,7 @@
         </div>
         {#if bg.feature}
           <div class="bg-feature">
-            <span class="bg-feature-label">Feature:</span>
+            <span class="bg-feature-label">Característica:</span>
             <span class="bg-feature-name">{bg.feature.name}</span>
           </div>
         {/if}
@@ -40,7 +40,7 @@
 
   {#if backgroundDef}
     <div class="bg-detail">
-      <h3>Starting Equipment</h3>
+      <h3>Equipamento inicial</h3>
       <ul>
         {#each backgroundDef.equipment as item}
           <li>{item}</li>

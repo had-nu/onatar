@@ -8,8 +8,8 @@
 </script>
 
 <div class="step-equip">
-  <h2 class="step-title">Equipment</h2>
-  <p class="step-desc">Your background provides starting equipment. In the future, you'll be able to customize weapons, armor, and items.</p>
+  <h2 class="step-title">Equipamento</h2>
+  <p class="step-desc">O teu background fornece o equipamento inicial. No futuro, poderás personalizar armas, armaduras e itens.</p>
 
   <div class="equip-grid">
     {#each equipment as item, i}
@@ -21,7 +21,7 @@
   </div>
 
   <div class="equip-note">
-    <p>💡 <strong>Note:</strong> Detailed equipment management (weapons, armor, consumables) will be implemented in a future version. For now, base equipment is inherited from background.</p>
+    <p>💡 <strong>Nota:</strong> A gestão detalhada de equipamento (armas, armaduras, consumíveis) será implementada numa versão futura. Por agora, o equipamento base é herdado do background.</p>
   </div>
 </div>
 

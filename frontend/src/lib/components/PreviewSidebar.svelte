@@ -26,7 +26,7 @@
     {:else}
       <div class="ps-name">{preview.name}</div>
       <div class="ps-sub">
-        {getSpeciesDef()?.name || '—'} · {getClassDef()?.name || '—'} · Level {getTotalLevel()}
+        {getSpeciesDef()?.name || '—'} · {getClassDef()?.name || '—'} · Nível {getTotalLevel()}
       </div>
 
       <div class="ps-stats">
@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      {#if preview.savingThrows && Object.keys(preview.savingThrows).length > 0}
+{#if preview.savingThrows && Object.keys(preview.savingThrows).length > 0}
         <div class="ps-section">
           <h4>Salvaguardas</h4>
           <div class="ps-list">
@@ -72,7 +72,7 @@
 
       {#if preview.features && preview.features.length > 0}
         <div class="ps-section">
-          <h4>Features</h4>
+          <h4>Características</h4>
           <div class="ps-list">
             {#each preview.features.slice(0, 6) as feat}
               <div class="ps-item">{feat}</div>
@@ -86,7 +86,7 @@
 
       {#if preview.spellSlots && Object.keys(preview.spellSlots).length > 0}
         <div class="ps-section">
-          <h4>Spell Slots</h4>
+          <h4>Espaços de magia</h4>
           <div class="ps-slots">
             {#each Object.entries(preview.spellSlots).filter(([,c]) => c > 0) as [lvl, count]}
               <div class="ps-slot">

@@ -48,10 +48,10 @@
   /* Arcanum theme variables (mapped to existing Onatar vars) */
   --on-bg-root: var(--bg);
   --on-bg-surface: var(--bg-card);
-  --on-bg-elevated: #1a1a24;
-  --on-bg-hover: #24243d;
-  --on-border: #2a1f1f;
-  --on-border-light: #3d2a2a;
+  --on-bg-elevated: var(--bg-card);
+  --on-bg-hover: var(--bg-2);
+  --on-border: var(--border);
+  --on-border-light: var(--border-strong);
   --on-red: var(--accent);
   --on-red-hover: #a00008;
   --on-red-glow: rgba(197, 0, 9, 0.15);
@@ -104,10 +104,10 @@
     /* Arcanum dark mode mappings */
     --on-bg-root: var(--bg);
     --on-bg-surface: var(--bg-card);
-    --on-bg-elevated: #1a1a24;
-    --on-bg-hover: #24243d;
-    --on-border: #2a1f1f;
-    --on-border-light: #3d2a2a;
+    --on-bg-elevated: var(--bg-card);
+    --on-bg-hover: var(--bg-2);
+    --on-border: var(--border);
+    --on-border-light: var(--border-strong);
     --on-red: var(--accent);
     --on-red-hover: #a00008;
     --on-red-glow: rgba(197, 0, 9, 0.15);
@@ -146,10 +146,10 @@
   /* Arcanum light mode mappings */
   --on-bg-root: var(--bg);
   --on-bg-surface: var(--bg-card);
-  --on-bg-elevated: #1a1a24;
-  --on-bg-hover: #24243d;
-  --on-border: #2a1f1f;
-  --on-border-light: #3d2a2a;
+  --on-bg-elevated: var(--bg-card);
+  --on-bg-hover: var(--bg-2);
+  --on-border: var(--border);
+  --on-border-light: var(--border-strong);
   --on-red: var(--accent);
   --on-red-hover: #a00008;
   --on-red-glow: rgba(197, 0, 9, 0.15);
@@ -187,10 +187,10 @@
   /* Arcanum dark mode mappings */
   --on-bg-root: var(--bg);
   --on-bg-surface: var(--bg-card);
-  --on-bg-elevated: #1a1a24;
-  --on-bg-hover: #24243d;
-  --on-border: #2a1f1f;
-  --on-border-light: #3d2a2a;
+  --on-bg-elevated: var(--bg-card);
+  --on-bg-hover: var(--bg-2);
+  --on-border: var(--border);
+  --on-border-light: var(--border-strong);
   --on-red: var(--accent);
   --on-red-hover: #a00008;
   --on-red-glow: rgba(197, 0, 9, 0.15);
@@ -342,4 +342,9 @@ a {
   color: #2a2218;
   background: var(--gold-bg);
   border-color: var(--gold-border);
+}
+
+/* Hide login button - will be shown when auth is ready */
+.shell .topbar-actions .btn.primary[href="#/login"] {
+  display: none !important;
 }

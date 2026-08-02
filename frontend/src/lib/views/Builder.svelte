@@ -11,15 +11,15 @@
   import Button from '$lib/ui/Button.svelte';
 
   const steps = [
-    { label: 'Class', component: ClassStep },
+    { label: 'Classe', component: ClassStep },
     { label: 'Background', component: BackgroundStep },
-    { label: 'Species', component: SpeciesStep },
-    { label: 'Abilities', component: AbilitiesStep },
-    { label: 'Equipment', component: EquipmentStep },
-    { label: 'Review', component: ReviewStep },
+    { label: 'Espécie', component: SpeciesStep },
+    { label: 'Atributos', component: AbilitiesStep },
+    { label: 'Equipamento', component: EquipmentStep },
+    { label: 'Revisão', component: ReviewStep },
   ];
 
-  const StepComponent = $derived(steps[step].component);
+  const StepComponent = $derived(steps[step.value].component);
 </script>
 
 <div class="builder-page">
@@ -35,15 +35,15 @@
           onclick={prevStep}
           disabled={step === 0}
         >
-          ← Previous
+          ← Anterior
         </Button>
 
         <div class="builder-nav-meta">
           {#if getCanUndo()}
-            <button class="nav-undo" onclick={undo} title="Undo">↩</button>
+            <button class="nav-undo" onclick={undo} title="Desfazer">↩</button>
           {/if}
           {#if getCanRedo()}
-            <button class="nav-redo" onclick={redo} title="Redo">↪</button>
+            <button class="nav-redo" onclick={redo} title="Refazer">↪</button>
           {/if}
         </div>
 
@@ -53,7 +53,7 @@
             onclick={nextStep}
             disabled={!getCurrentStepValid()}
           >
-            Next →
+            Próximo →
           </Button>
         {/if}
       </div>

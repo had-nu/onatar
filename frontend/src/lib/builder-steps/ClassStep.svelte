@@ -9,8 +9,8 @@
 </script>
 
 <div class="step-class">
-  <h2 class="step-title">Choose Your Class</h2>
-  <p class="step-desc">Your class defines your role in combat, your abilities, and your playstyle.</p>
+  <h2 class="step-title">Escolhe a tua classe</h2>
+  <p class="step-desc">A classe define o teu papel em combate, as tuas habilidades e o teu estilo de jogo.</p>
 
   <div class="class-grid">
     {#each classes as cls}
@@ -23,7 +23,7 @@
           <span class="cc-name">{cls.name}</span>
           <span class="cc-die">d{cls.hitDie}</span>
         </div>
-        <p class="cc-desc">{cls.spellcaster ? 'Spellcaster' : 'Martial'} · Saving Throws: {cls.savingThrows.join(', ')}</p>
+        <p class="cc-desc">{cls.spellcaster ? 'Conjurador' : 'Marcial'} · Salvaguardas: {cls.savingThrows.join(', ')}</p>
         <div class="cc-tags">
           {#each cls.primaryAbility as ab}
             <Tag variant="primary">{ab}</Tag>
@@ -45,7 +45,7 @@
 
   {#if selectedClassId && classDef?.subClasses && classDef.subClasses.length > 0}
     <div class="subclass-section">
-      <h3 class="subclass-title">Subclass <span class="subclass-optional">(level {classDef.subclassLevel})</span></h3>
+      <h3 class="subclass-title">Subclasse <span class="subclass-optional">(nível {classDef.subclassLevel})</span></h3>
       <div class="subclass-grid">
         {#each classDef.subClasses as sc}
           <Card
