@@ -213,7 +213,7 @@ export function getCharacter(id: string): Character | undefined {
 
 export function starterDraft(): BuildRequest {
   return {
-    name: 'Novo personagem',
+    name: 'New character',
     classes: [{ id: 'fighter', level: 1 }],
     speciesId: 'human',
     backgroundId: 'sage',

@@ -16,13 +16,13 @@ describe('App', () => {
   it('renders the landing page with navigation', () => {
     render(App)
     const heading = screen.getByRole('heading', { level: 1 })
-    expect(heading.textContent).toBe('Onatar')
-    expect(screen.getByRole('navigation', { name: 'Navegação principal' })).toBeTruthy()
-    // When not authenticated, "Personagens" is hidden, "Conteúdo" is always visible
-    expect(screen.getByRole('link', { name: 'Conteúdo' })).toBeTruthy()
+    expect(heading.textContent).toBe('Forge Your Hero')
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeTruthy()
+    // When not authenticated, "Characters" is hidden, "Content" is always visible
+    expect(screen.getByRole('link', { name: 'Content' })).toBeTruthy()
     // CTA buttons on landing page
-    expect(screen.getByRole('link', { name: 'Criar personagem' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Os meus personagens' })).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Explorar conteúdo' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Create Character' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'My Characters' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Explore Content' })).toBeTruthy()
   })
 })

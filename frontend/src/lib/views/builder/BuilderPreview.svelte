@@ -35,18 +35,18 @@
   }
 </script>
 
-<h2 class="side-title">Pré-visualização</h2>
+<h2 class="side-title">Preview</h2>
 
 {#if status === 'idle'}
-  <p class="muted">Escolhe pelo menos uma classe para ver a ficha ao vivo.</p>
+  <p class="muted">Select at least a class to see live sheet.</p>
 {:else if status === 'loading'}
-  <p class="muted">Calcular ficha…</p>
+  <p class="muted">Calculating sheet…</p>
 {:else if status === 'error'}
   <p class="error-text">{error}</p>
 {:else if sheet}
   <dl class="stats">
     <div>
-      <dt>Nível</dt>
+      <dt>Level</dt>
       <dd>{sheet.level}</dd>
     </div>
     <div>
@@ -54,7 +54,7 @@
       <dd>{sheet.hp.max}</dd>
     </div>
     <div>
-      <dt>CA</dt>
+      <dt>AC</dt>
       <dd>{sheet.ac}</dd>
     </div>
     <div>
@@ -76,14 +76,14 @@
       {#each sheet.features as f (f.name + f.level)}
         <li>
           <span class="feature-name">{f.name}</span>
-          <span class="muted">nível {f.level}</span>
+          <span class="muted">level {f.level}</span>
         </li>
       {/each}
     </ul>
   {/if}
 
   {#if sheet.pendingChoices.length > 0}
-    <p class="chips-label">Escolhas pendentes</p>
+    <p class="chips-label">Pending Choices</p>
     <ul class="features">
       {#each sheet.pendingChoices as pc (pc.type + pc.description)}
         <li>{pc.description}</li>
@@ -145,7 +145,7 @@
     font-size: 0.85rem;
     display: flex;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.5rem
   }
   .feature-name {
     color: var(--text-h);

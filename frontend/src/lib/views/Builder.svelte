@@ -1,197 +1,119 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { contentError, loadContent } from '../content.svelte'
-  import {
-    STEPS,
-    builder,
-    canGoNext,
-    nextStep,
-    prevStep,
-    redo,
-    setStep,
-    step,
-    undo,
-  } from '../builder.svelte'
-  import ClassStep from './builder/ClassStep.svelte'
-  import BackgroundStep from './builder/BackgroundStep.svelte'
-  import SpeciesStep from './builder/SpeciesStep.svelte'
-  import AbilitiesStep from './builder/AbilitiesStep.svelte'
-  import EquipmentStep from './builder/EquipmentStep.svelte'
-  import ReviewStep from './builder/ReviewStep.svelte'
-  import BuilderPreview from './builder/BuilderPreview.svelte'
+  import { step, nextStep, prevStep, getCurrentStepValid, undo, getCanUndo, redo, getCanRedo } from '$lib/builder.svelte';
+  import StepsBar from '$lib/components/StepsBar.svelte';
+  import PreviewSidebar from '$lib/components/PreviewSidebar.svelte';
+  import ClassStep from '$lib/builder-steps/ClassStep.svelte';
+  import BackgroundStep from '$lib/builder-steps/BackgroundStep.svelte';
+  import SpeciesStep from '$lib/builder-steps/SpeciesStep.svelte';
+  import AbilitiesStep from '$lib/builder-steps/AbilitiesStep.svelte';
+  import EquipmentStep from '$lib/builder-steps/EquipmentStep.svelte';
+  import ReviewStep from '$lib/builder-steps/ReviewStep.svelte';
+  import Button from '$lib/ui/Button.svelte';
 
-  let status = $state<'loading' | 'ready' | 'error'>('loading')
+  const steps = [
+    { label: 'Class', component: ClassStep },
+    { label: 'Background', component: BackgroundStep },
+    { label: 'Species', component: SpeciesStep },
+    { label: 'Abilities', component: AbilitiesStep },
+    { label: 'Equipment', component: EquipmentStep },
+    { label: 'Review', component: ReviewStep },
+  ];
 
-  onMount(async () => {
-    try {
-      await loadContent()
-      status = 'ready'
-    } catch {
-      status = 'error'
-    }
-  })
-
-  function retry() {
-    status = 'loading'
-    void loadContent(true)
-      .then(() => (status = 'ready'))
-      .catch(() => (status = 'error'))
-  }
-
-  const current = $derived(step())
+  const StepComponent = $derived(steps[step].component);
 </script>
 
-<div class="page-head">
-  <h1>Constructor de personagem</h1>
-  <div class="head-actions">
-    <button class="btn" onclick={undo} disabled={builder.value.history.length === 0}
-      >Desfazer</button
-    >
-    <button class="btn" onclick={redo} disabled={builder.value.future.length === 0}>Refazer</button>
-  </div>
-</div>
-
-{#if status === 'loading'}
-  <p>Carregar conteúdo…</p>
-{:else if status === 'error'}
-  <div class="error-box">
-    <p>
-      Não foi possível carregar o conteúdo{contentError.value ? `: ${contentError.value}` : ''}.
-    </p>
-    <button class="btn" onclick={retry}>Tentar de novo</button>
-  </div>
-{:else}
-  <nav class="stepper" aria-label="Passos do wizard">
-    {#each STEPS as st, i (st.id)}
-      <button
-        class:active={i === builder.value.stepIndex}
-        class:done={i < builder.value.stepIndex}
-        onclick={() => setStep(i)}
-      >
-        <span class="idx">{i + 1}</span>
-        {st.label}
-      </button>
-    {/each}
-  </nav>
+<div class="builder-page">
+  <StepsBar {steps} />
 
   <div class="builder-layout">
-    <main class="step-panel">
-      {#if current.id === 'class'}
-        <ClassStep />
-      {:else if current.id === 'background'}
-        <BackgroundStep />
-      {:else if current.id === 'species'}
-        <SpeciesStep />
-      {:else if current.id === 'abilities'}
-        <AbilitiesStep />
-      {:else if current.id === 'equipment'}
-        <EquipmentStep />
-      {:else}
-        <ReviewStep />
-      {/if}
+    <main class="builder-content">
+      <StepComponent />
 
-      <div class="nav-actions">
-        <button class="btn" onclick={prevStep} disabled={builder.value.stepIndex === 0}>
-          ← Anterior
-        </button>
-        {#if current.id !== 'review'}
-          <button class="btn primary" onclick={nextStep} disabled={!canGoNext()}>
-            Continuar →
-          </button>
+      <div class="builder-nav">
+        <Button
+          variant="ghost"
+          onclick={prevStep}
+          disabled={step === 0}
+        >
+          ← Previous
+        </Button>
+
+        <div class="builder-nav-meta">
+          {#if getCanUndo()}
+            <button class="nav-undo" onclick={undo} title="Undo">↩</button>
+          {/if}
+          {#if getCanRedo()}
+            <button class="nav-redo" onclick={redo} title="Redo">↪</button>
+          {/if}
+        </div>
+
+        {#if step < 5}
+          <Button
+            variant="primary"
+            onclick={nextStep}
+            disabled={!getCurrentStepValid()}
+          >
+            Next →
+          </Button>
         {/if}
       </div>
     </main>
-    <aside class="preview">
-      <BuilderPreview />
-    </aside>
+
+    <PreviewSidebar />
   </div>
-{/if}
+</div>
 
 <style>
-  .page-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-  h1 {
-    margin: 0;
-    color: var(--text-h);
-  }
-  .head-actions {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .stepper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1.5rem;
-  }
-  .stepper button {
-    font: inherit;
-    font-size: 0.85rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--code-bg);
-    color: var(--text);
-    cursor: pointer;
-  }
-  .stepper .idx {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--text-h);
-  }
-  .stepper button.active {
-    color: var(--accent);
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
-  }
-  .stepper button.done {
-    color: var(--text-h);
-  }
-  .stepper button:disabled {
-    cursor: default;
+  .builder-page {
+    min-height: 100vh;
+    background: var(--on-bg-root);
   }
   .builder-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 22rem;
-    gap: 1.5rem;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
     align-items: start;
   }
-  .step-panel {
-    display: grid;
-    gap: 1rem;
+  .builder-content {
+    min-width: 0;
   }
-  .preview {
-    position: sticky;
-    top: 1rem;
-  }
-  .nav-actions {
+  .builder-nav {
     display: flex;
     justify-content: space-between;
-    margin-top: 1.5rem;
+    align-items: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--on-border);
   }
-  .error-box {
-    border: 1px solid var(--danger-border);
-    background: var(--danger-bg);
-    border-radius: 8px;
-    padding: 1.25rem;
-    display: grid;
-    gap: 0.75rem;
-    justify-items: start;
+  .builder-nav-meta {
+    display: flex;
+    gap: 8px;
   }
-  @media (max-width: 1024px) {
+  .nav-undo, .nav-redo {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--on-border);
+    background: transparent;
+    color: var(--on-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .nav-undo:hover, .nav-redo:hover {
+    background: var(--on-bg-hover);
+    color: var(--on-text);
+  }
+
+  @media (max-width: 900px) {
     .builder-layout {
       grid-template-columns: 1fr;
-    }
-    .preview {
-      position: static;
     }
   }
 </style>

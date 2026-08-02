@@ -1,418 +1,447 @@
-// Builder wizard store (PRD §3.4 / RF-01). Holds the in-progress BuildRequest,
-// the active step, per-step validation, and an undo/redo history.
-import { box } from './box.svelte'
-import { content } from './content.svelte'
-import { createCharacter, buildDraft } from './characters.svelte'
-import type { Ability, BuildRequest, Character, ClassInput, Sheet } from './types'
+import type {
+  AbilityScores, BuildRequest, BuildResponse, CharacterSheet,
+  ChoicePoint, BuilderSnapshot, ClassEntry, SpeciesEntry, BackgroundEntry, SpellEntry
+} from './types';
+import { mockClasses, mockSpecies, mockBackgrounds, mockSpells } from './mockData';
+import { box } from './box.svelte';
 
-export type StepId = 'class' | 'background' | 'species' | 'abilities' | 'equipment' | 'review'
-export type AbilityMethod = 'standard-array' | 'point-buy' | 'rolled'
+const defaultAbilities: AbilityScores = { STR: 10, DEX: 10, CON: 10, INT: 10, WIS: 10, CHA: 10 };
 
-export interface Step {
-  id: StepId
-  label: string
-}
-
-export const STEPS: Step[] = [
-  { id: 'class', label: 'Classe' },
-  { id: 'background', label: 'Background' },
-  { id: 'species', label: 'Espécie' },
-  { id: 'abilities', label: 'Atributos' },
-  { id: 'equipment', label: 'Equipamento' },
-  { id: 'review', label: 'Revisão' },
-]
-
-export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8] as const
-export const POINT_BUY_MIN = 8
-export const POINT_BUY_MAX = 15
-export const POINT_BUY_BUDGET = 27
-export const POINT_BUY_COST: Record<number, number> = {
-  8: 0,
-  9: 1,
-  10: 2,
-  11: 3,
-  12: 4,
-  13: 5,
-  14: 7,
-  15: 9,
-}
-
-export interface AbilityState {
-  score: number
-  method: AbilityMethod
-  assigned: Partial<Record<Ability, number>>
-  rolled: number[]
-  pointBuy: Record<Ability, number>
-}
-
-export interface BuilderState {
-  stepIndex: number
-  draft: BuildRequest
-  abilities: AbilityState
-  equipment: string[]
-  name: string
-  history: Snapshot[]
-  future: Snapshot[]
-}
-
-interface Snapshot {
-  stepIndex: number
-  draft: BuildRequest
-  abilities: AbilityState
-  equipment: string[]
-  name: string
-}
-
-const ABILITIES: Ability[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
-
-export function blankDraft(): BuildRequest {
-  return {
-    name: '',
-    classes: [],
-    abilityScores: { STR: 8, DEX: 8, CON: 8, INT: 8, WIS: 8, CHA: 8 },
-    abilityMethod: 'standard-array',
-    skills: [],
-    spells: [],
-    feats: [],
-    isNpc: false,
-  }
-}
-
-export const builder = box<BuilderState>({
-  stepIndex: 0,
-  draft: blankDraft(),
-  abilities: {
-    score: 0,
-    method: 'standard-array',
-    assigned: {},
-    rolled: [],
-    pointBuy: { STR: 8, DEX: 8, CON: 8, INT: 8, WIS: 8, CHA: 8 },
-  },
-  equipment: [],
+const initialDraft = (): BuildRequest => ({
   name: '',
-  history: [],
-  future: [],
-})
+  classes: [],
+  backgroundId: '',
+  speciesId: '',
+  speciesVariant: undefined,
+  level: 1,
+  abilityScores: { ...defaultAbilities },
+  abilityMethod: 'standard',
+  skills: [],
+  spells: [],
+  feats: [],
+});
 
-function snapshot(): Snapshot {
-  const s = builder.value
-  return {
-    stepIndex: s.stepIndex,
-    draft: s.draft,
-    abilities: s.abilities,
-    equipment: s.equipment,
-    name: s.name,
+// ─── State ─────────────────────────────────────────────────
+export const draft = box<BuildRequest>(initialDraft());
+export const step = box(0);
+export const preview = box<CharacterSheet | null>(null);
+export const pendingChoices = box<ChoicePoint[]>([]);
+export const isLoading = box(false);
+export const error = box<string | null>(null);
+
+// Undo / redo
+const MAX_HISTORY = 50;
+let history = $state<BuilderSnapshot[]>([{ draft: initialDraft(), step: 0, timestamp: Date.now() }]);
+let historyIndex = $state(0);
+
+// Content cache (mock or fetched)
+export const classes = box<ClassEntry[]>(mockClasses);
+export const species = box<SpeciesEntry[]>(mockSpecies);
+export const backgrounds = box<BackgroundEntry[]>(mockBackgrounds);
+export const spells = box<SpellEntry[]>(mockSpells);
+
+// ─── Derived ───────────────────────────────────────────────
+export function getTotalLevel() { return draft.value.classes.reduce((s, c) => s + c.level, 0); }
+export function getCanUndo() { return historyIndex > 0; }
+export function getCanRedo() { return historyIndex < history.length - 1; }
+export function getCurrentStepValid() { return validateStep(step.value); }
+export function getClassDef() { return classes.value.find(c => c.id === draft.value.classes[0]?.id); }
+export function getSpeciesDef() { return species.value.find(s => s.id === draft.value.speciesId); }
+export function getBackgroundDef() { return backgrounds.value.find(b => b.id === draft.value.backgroundId); }
+
+// ─── Step validation ───────────────────────────────────────
+function validateStep(s: number): boolean {
+  switch (s) {
+    case 0: return draft.value.classes.length > 0 && draft.value.classes[0].level >= 1;
+    case 1: return !!draft.value.backgroundId;
+    case 2: return !!draft.value.speciesId;
+    case 3: return Object.values(draft.value.abilityScores).every(v => v >= 3 && v <= 20);
+    case 4: return true; // equipment optional for now
+    case 5: return !!draft.value.name && pendingChoices.value.length === 0;
+    default: return false;
   }
 }
 
-/** Record history for undo, then apply a mutation to the current state. */
-function mutate(fn: (s: BuilderState) => BuilderState) {
-  const s = builder.value
-  const prev: Snapshot = snapshot()
-  const next: BuilderState = fn(s)
-  const history = [...s.history, prev].slice(-50)
-  builder.value = { ...next, history, future: [] }
-}
-
-/** Test helper: reset the wizard between tests. */
-export function _resetBuilder() {
-  builder.value = {
-    stepIndex: 0,
-    draft: blankDraft(),
-    abilities: {
-      score: 0,
-      method: 'standard-array',
-      assigned: {},
-      rolled: [],
-      pointBuy: { STR: 8, DEX: 8, CON: 8, INT: 8, WIS: 8, CHA: 8 },
-    },
-    equipment: [],
-    name: '',
-    history: [],
-    future: [],
+// ─── History (undo/redo) ───────────────────────────────────
+function pushHistory() {
+  // Remove future history if we're not at the end
+  if (historyIndex < history.length - 1) {
+    history = history.slice(0, historyIndex + 1);
   }
+  history.push({ draft: structuredClone(draft.value), step: step.value, timestamp: Date.now() });
+  if (history.length > MAX_HISTORY) history.shift();
+  else historyIndex++;
 }
-
-// --- steps ---
-
-export function step(): Step {
-  return STEPS[builder.value.stepIndex]
-}
-
-export function setStep(i: number) {
-  const s = builder.value
-  if (i < 0 || i >= STEPS.length) return
-  builder.value = { ...s, stepIndex: i }
-}
-
-export function nextStep() {
-  const s = builder.value
-  if (!canGoNext()) return
-  builder.value = { ...s, stepIndex: Math.min(s.stepIndex + 1, STEPS.length - 1) }
-}
-
-export function prevStep() {
-  const s = builder.value
-  builder.value = { ...s, stepIndex: Math.max(s.stepIndex - 1, 0) }
-}
-
-// --- undo / redo ---
 
 export function undo() {
-  const s = builder.value
-  const prev = s.history.at(-1)
-  if (!prev) return
-  const history = s.history.slice(0, -1)
-  builder.value = {
-    ...s,
-    stepIndex: prev.stepIndex,
-    draft: prev.draft,
-    abilities: prev.abilities,
-    equipment: prev.equipment,
-    name: prev.name,
-    history,
-    future: [snapshot(), ...s.future].slice(0, 50),
-  }
+  if (!getCanUndo()) return;
+  historyIndex--;
+  const snap = history[historyIndex];
+  draft.value = structuredClone(snap.draft);
+  step.value = snap.step;
+  requestPreview();
 }
 
 export function redo() {
-  const s = builder.value
-  const next = s.future[0]
-  if (!next) return
-  const future = s.future.slice(1)
-  builder.value = {
-    ...s,
-    stepIndex: next.stepIndex,
-    draft: next.draft,
-    abilities: next.abilities,
-    equipment: next.equipment,
-    name: next.name,
-    history: [...s.history, snapshot()].slice(-50),
-    future,
+  if (!getCanRedo()) return;
+  historyIndex++;
+  const snap = history[historyIndex];
+  draft.value = structuredClone(snap.draft);
+  step.value = snap.step;
+  requestPreview();
+}
+
+// ─── Draft mutations ───────────────────────────────────────
+export function setStep(s: number) {
+  if (s < 0 || s > 5) return;
+  if (s > step.value && !getCurrentStepValid()) return; // block forward if invalid
+  pushHistory();
+  step.value = s;
+}
+
+export function nextStep() { setStep(step.value + 1); }
+export function prevStep() { setStep(step.value - 1); }
+
+export function setName(name: string) {
+  draft.value.name = name;
+  requestPreview();
+}
+
+export function selectClass(classId: string) {
+  pushHistory();
+  draft.value.classes = [{ id: classId, level: 1 }];
+  draft.value.level = 1;
+  requestPreview();
+}
+
+export function setSubclass(classId: string, subclassId: string) {
+  pushHistory();
+  draft.value.classes = draft.value.classes.map(c =>
+    c.id === classId ? { ...c, subclassId } : c
+  );
+  requestPreview();
+}
+
+export function setBackground(id: string) {
+  pushHistory();
+  draft.value.backgroundId = id;
+  // Auto-add background skills
+  const bg = backgrounds.value.find(b => b.id === id);
+  if (bg) {
+    draft.value.skills = [...new Set([...draft.value.skills, ...bg.skillProficiencies])];
+  }
+  requestPreview();
+}
+
+export function setSpecies(id: string, variant?: string) {
+  pushHistory();
+  draft.value.speciesId = id;
+  draft.value.speciesVariant = variant;
+  // Apply ability bonuses
+  const sp = species.value.find(s => s.id === id);
+  if (sp) {
+    const bonuses = sp.abilityBonuses;
+    draft.value.abilityScores = {
+      STR: defaultAbilities.STR + (bonuses.STR || 0),
+      DEX: defaultAbilities.DEX + (bonuses.DEX || 0),
+      CON: defaultAbilities.CON + (bonuses.CON || 0),
+      INT: defaultAbilities.INT + (bonuses.INT || 0),
+      WIS: defaultAbilities.WIS + (bonuses.WIS || 0),
+      CHA: defaultAbilities.CHA + (bonuses.CHA || 0),
+    };
+  }
+  requestPreview();
+}
+
+export function setAbilityScore(ability: keyof AbilityScores, value: number) {
+  draft.value.abilityScores[ability] = Math.max(3, Math.min(20, value));
+  requestPreview();
+}
+
+export function setAbilityMethod(method: BuildRequest['abilityMethod']) {
+  pushHistory();
+  draft.value.abilityMethod = method;
+  // Reset scores based on method
+  if (method === 'standard') {
+    draft.value.abilityScores = { ...defaultAbilities };
+  }
+  requestPreview();
+}
+
+export function toggleSkill(skillId: string) {
+  const set = new Set(draft.value.skills);
+  if (set.has(skillId)) set.delete(skillId);
+  else set.add(skillId);
+  draft.value.skills = Array.from(set);
+  requestPreview();
+}
+
+export function addSpell(spellId: string) {
+  if (!draft.value.spells.includes(spellId)) {
+    draft.value.spells = [...draft.value.spells, spellId];
+    requestPreview();
   }
 }
 
-// --- validation ---
+export function removeSpell(spellId: string) {
+  draft.value.spells = draft.value.spells.filter(s => s !== spellId);
+  requestPreview();
+}
 
-export function validateStep(id: StepId): boolean {
-  const s = builder.value
-  switch (id) {
-    case 'class':
-      return s.draft.classes.length > 0 && s.draft.classes.every((c) => c.level >= 1)
-    case 'background':
-      return Boolean(s.draft.backgroundId)
-    case 'species':
-      return Boolean(s.draft.speciesId)
-    case 'abilities':
-      return abilitiesValid(s)
-    case 'equipment':
-      return true
-    case 'review':
-      return Boolean(s.name.trim())
+// ─── Debounced Preview ─────────────────────────────────────
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function requestPreview() {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(async () => {
+    await computePreview();
+  }, 250);
+}
+
+async function computePreview() {
+  // Minimal validation
+  if (!draft.value.classes.length || !draft.value.backgroundId || !draft.value.speciesId) {
+    preview.value = null;
+    pendingChoices.value = [];
+    return;
   }
-}
 
-function abilitiesValid(s: BuilderState): boolean {
-  const a = s.abilities
-  if (a.method === 'point-buy') {
-    const spent = Object.values(a.pointBuy).reduce((acc, v) => acc + POINT_BUY_COST[v], 0)
-    const values = Object.values(a.pointBuy)
-    return (
-      spent <= POINT_BUY_BUDGET &&
-      values.every((v) => v >= POINT_BUY_MIN) &&
-      values.every((v) => v <= POINT_BUY_MAX)
-    )
-  }
-  const assigned = Object.values(a.assigned)
-  return assigned.length === ABILITIES.length && assigned.every((v) => typeof v === 'number')
-}
+  isLoading.value = true;
+  error.value = null;
 
-export function canGoNext(): boolean {
-  return validateStep(step().id)
-}
-
-// --- draft builders ---
-
-function abilityScoresFrom(state: AbilityState): Record<Ability, number> {
-  if (state.method === 'point-buy') {
-    return { ...state.pointBuy }
-  }
-  const out = { STR: 8, DEX: 8, CON: 8, INT: 8, WIS: 8, CHA: 8 } as Record<Ability, number>
-  for (const ab of ABILITIES) {
-    if (typeof state.assigned[ab] === 'number') out[ab] = state.assigned[ab] as number
-  }
-  return out
-}
-
-function withAbilityScores(s: BuilderState): BuilderState {
-  return {
-    ...s,
-    draft: {
-      ...s.draft,
-      abilityScores: abilityScoresFrom(s.abilities),
-      abilityMethod: s.abilities.method,
-    },
-  }
-}
-
-// --- class step ---
-
-export function selectClass(id: string) {
-  mutate((s) => {
-    const existing = s.draft.classes.some((c) => c.id === id)
-    if (existing) return s
-    const classes = [...s.draft.classes, { id, level: 1 } as ClassInput]
-    return withAbilityScores({ ...s, draft: { ...s.draft, classes } })
-  })
-}
-
-export function deselectClass(id: string) {
-  mutate((s) => {
-    const classes = s.draft.classes.filter((c) => c.id !== id)
-    return withAbilityScores({ ...s, draft: { ...s.draft, classes } })
-  })
-}
-
-export function setClassLevel(id: string, level: number) {
-  mutate((s) => {
-    const classes = s.draft.classes.map((c) => (c.id === id ? { ...c, level } : c))
-    return withAbilityScores({ ...s, draft: { ...s.draft, classes } })
-  })
-}
-
-export function selectSubclass(classId: string, subclassId: string) {
-  mutate((s) => {
-    const classes = s.draft.classes.map((c) => (c.id === classId ? { ...c, subclassId } : c))
-    return { ...s, draft: { ...s.draft, classes } }
-  })
-}
-
-// --- background / species ---
-
-export function selectBackground(id: string) {
-  mutate((s) => ({ ...s, draft: { ...s.draft, backgroundId: id } }))
-}
-
-export function selectSpecies(id: string) {
-  mutate((s) => ({ ...s, draft: { ...s.draft, speciesId: id } }))
-}
-
-// --- abilities ---
-
-export function setMethod(method: AbilityMethod) {
-  mutate((s) => withAbilityScores({ ...s, abilities: { ...s.abilities, method } }))
-}
-
-export function assignAbility(ability: Ability, value: number | null) {
-  mutate((s) => {
-    const assigned = { ...s.abilities.assigned }
-    if (value === null) delete assigned[ability]
-    else assigned[ability] = value
-    return withAbilityScores({ ...s, abilities: { ...s.abilities, assigned } })
-  })
-}
-
-export function setPointBuy(ability: Ability, score: number) {
-  const clamped = Math.min(POINT_BUY_MAX, Math.max(POINT_BUY_MIN, score))
-  mutate((s) =>
-    withAbilityScores({
-      ...s,
-      abilities: { ...s.abilities, pointBuy: { ...s.abilities.pointBuy, [ability]: clamped } },
-    })
-  )
-}
-
-/** Roll 4d6 drop lowest, once per ability. Returns the values. */
-export function rollScores(): number[] {
-  const scores = ABILITIES.map(() => {
-    const dice = Array.from({ length: 4 }, () => 1 + Math.floor(Math.random() * 6))
-    dice.sort((a, b) => a - b)
-    return dice.slice(1).reduce((a, b) => a + b, 0)
-  })
-  mutate((s) => withAbilityScores({ ...s, abilities: { ...s.abilities, rolled: scores } }))
-  return scores
-}
-
-// --- spells / skills / feats (content-driven) ---
-
-export function toggleSpell(id: string) {
-  mutate((s) => {
-    const spells = s.draft.spells ?? []
-    const next = spells.includes(id) ? spells.filter((x) => x !== id) : [...spells, id]
-    return { ...s, draft: { ...s.draft, spells: next } }
-  })
-}
-
-export function toggleSkill(id: string) {
-  mutate((s) => {
-    const skills = s.draft.skills ?? []
-    const next = skills.includes(id) ? skills.filter((x) => x !== id) : [...skills, id]
-    return { ...s, draft: { ...s.draft, skills: next } }
-  })
-}
-
-export function toggleFeat(id: string) {
-  mutate((s) => {
-    const feats = s.draft.feats ?? []
-    const next = feats.includes(id) ? feats.filter((x) => x !== id) : [...feats, id]
-    return { ...s, draft: { ...s.draft, feats: next } }
-  })
-}
-
-// --- equipment ---
-
-export function toggleEquipment(item: string) {
-  mutate((s) => {
-    const next = s.equipment.includes(item)
-      ? s.equipment.filter((x) => x !== item)
-      : [...s.equipment, item]
-    return { ...s, equipment: next }
-  })
-}
-
-// --- suggestions (RF-07) ---
-
-export function suggestedSpeciesForClass(): string[] {
-  const c = firstClass()
-  return c?.suggestedSpecies ?? []
-}
-
-export function suggestedBackgroundsForClass(): string[] {
-  const c = firstClass()
-  return c?.suggestedBackgrounds ?? []
-}
-
-function firstClass() {
-  const classes = content.value?.classes ?? []
-  return classes.find((c) => builder.value.draft.classes.some((x) => x.id === c.id))
-}
-
-export function recommendedSpells(): string[] {
-  const data = firstClass()?.data?.recommendedSpells
-  return Array.isArray(data) ? data.map(String) : []
-}
-
-// --- save (RF-03) ---
-
-export async function saveCharacterFromWizard(): Promise<Character | null> {
-  const s = builder.value
-  if (!validateStep('review')) return null
-  const draft: BuildRequest = { ...s.draft, name: s.name, equipment: s.equipment }
-
-  // Calculate sheet via backend before saving (fixes F2)
-  let sheet: Sheet | undefined
   try {
-    sheet = await buildDraft(draft)
-  } catch (err) {
-    // If backend is unreachable, save without sheet (will be calculated on next load)
-    console.warn('buildDraft failed, saving without sheet:', err)
+    // Try backend first
+    const res = await fetch('/api/v1/build', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft.value),
+    });
+
+    if (res.ok) {
+      const data: BuildResponse = await res.json();
+      preview.value = data.sheet ?? null;
+    } else {
+      // Fallback to local computation
+      preview.value = computeLocalPreview();
+    }
+  } catch {
+    // Offline fallback
+    preview.value = computeLocalPreview();
   }
 
-  const c = createCharacter(draft)
-  if (sheet) {
-    // Update the newly created character with the computed sheet
-    const { saveCharacter } = await import('./characters.svelte')
-    saveCharacter({ ...c, sheet })
+  deriveChoices();
+  isLoading.value = false;
+}
+
+// ─── Local Preview Computation (offline mode) ──────────────
+function computeLocalPreview(): CharacterSheet {
+  const cls = getClassDef();
+  const lvl = getTotalLevel();
+  const prof = Math.floor((lvl + 7) / 4);
+
+  // HP: hit die + CON mod at level 1, then average + CON mod per level
+  const conMod = Math.floor((draft.value.abilityScores.CON - 10) / 2);
+  const hd = cls?.hitDie || 8;
+  const hpMax = hd + conMod + (lvl - 1) * (Math.floor(hd / 2) + 1 + conMod);
+
+  // AC: base 10 + DEX mod (simplified — no armor in MVP)
+  const dexMod = Math.floor((draft.value.abilityScores.DEX - 10) / 2);
+  const ac = 10 + dexMod;
+
+  // Saving throws
+  const saves: CharacterSheet['savingThrows'] = {};
+  const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
+  for (const ab of abilities) {
+    const mod = Math.floor((draft.value.abilityScores[ab] - 10) / 2);
+    const proficient = cls?.savingThrows.includes(ab) ?? false;
+    saves[ab] = { proficient, modifier: mod + (proficient ? prof : 0) };
   }
-  return c
+
+  // Features
+  const features: string[] = [];
+  if (cls?.features) {
+    for (const f of cls.features) {
+      if (f.level <= lvl) features.push(f.name);
+    }
+  }
+  if (getSpeciesDef()?.traits) {
+    for (const t of getSpeciesDef()!.traits) features.push(t.name);
+  }
+  if (getBackgroundDef()?.feature) features.push(getBackgroundDef()!.feature.name);
+
+  // Spell slots (simplified full caster progression)
+  const spellSlots: Record<string, number> = {};
+  if (cls?.spellcaster && cls.spellcasting) {
+    const slots = cls.spellcasting.slots;
+    for (const [level, arr] of Object.entries(slots)) {
+      spellSlots[level] = arr[Math.min(lvl, 20) - 1] || 0;
+    }
+  }
+
+  return {
+    name: draft.value.name || 'Unnamed',
+    level: lvl,
+    hp: { max: Math.max(1, hpMax) },
+    ac: Math.max(10, ac),
+    proficiencyBonus: prof,
+    abilities: { ...draft.value.abilityScores },
+    savingThrows: saves,
+    skills: {}, // simplified
+    features,
+    spells: draft.value.spells,
+    spellSlots,
+  };
+}
+
+// ─── Derive Pending Choices ────────────────────────────────
+function deriveChoices() {
+  const choices: ChoicePoint[] = [];
+  const lvl = getTotalLevel();
+
+  for (const cls of draft.value.classes) {
+    const def = classes.value.find(c => c.id === cls.id);
+    if (!def) continue;
+
+    // Subclass choice
+    if (def.subclassLevel && lvl >= def.subclassLevel && !cls.subclassId) {
+      choices.push({
+        type: 'subclass',
+        classId: cls.id,
+        level: def.subclassLevel,
+        name: 'Choose Subclass',
+        description: `Select a subclass for ${def.name}`,
+        options: (def.subClasses ?? []).map(sc => ({
+          id: sc.id, name: sc.name, description: sc.description
+        })),
+      });
+    }
+
+    // Skill proficiencies (if not fully chosen)
+    if (def.skillChoices) {
+      const chosen = draft.value.skills.filter(s => def.skillChoices!.from.includes(s)).length;
+      const remaining = def.skillChoices.count - chosen;
+      if (remaining > 0) {
+        choices.push({
+          type: 'skill',
+          classId: cls.id,
+          level: 1,
+          name: 'Skill Proficiencies',
+          description: `Choose ${remaining} skill(s) from ${def.name}`,
+          options: def.skillChoices.from
+            .filter(s => !draft.value.skills.includes(s))
+            .map(s => ({ id: s, name: s, description: '' })),
+        });
+      }
+    }
+
+    // Spell preparation (simplified)
+    if (def.spellcaster && def.spellcasting?.preparedSpells) {
+      const maxPrepared = def.spellcasting.preparedSpells[lvl - 1] || 0;
+      const current = draft.value.spells.length;
+      if (current < maxPrepared) {
+        choices.push({
+          type: 'spell',
+          classId: cls.id,
+          level: lvl,
+          name: 'Prepare Spells',
+          description: `Choose ${maxPrepared - current} prepared spell(s)`,
+          options: spells.value
+            .filter(s => s.level <= 1 && !draft.value.spells.includes(s.id))
+            .map(s => ({ id: s.id, name: s.name, description: s.description })),
+        });
+      }
+    }
+  }
+
+  // ASI at levels 4, 8, 12, 16, 19
+  if (lvl >= 4 && lvl % 4 === 0) {
+    choices.push({
+      type: 'ability-improvement',
+      level: lvl,
+      name: 'Ability Score Improvement',
+      description: 'Increase one ability by +2 or two by +1, or choose a feat.',
+      options: [],
+    });
+  }
+
+  pendingChoices.value = choices;
+}
+
+// ─── Save / Reset ──────────────────────────────────────────
+export async function saveCharacter(): Promise<boolean> {
+  if (!draft.value.name) {
+    error.value = 'Character needs a name.';
+    return false;
+  }
+  if (pendingChoices.value.length > 0) {
+    error.value = 'There are pending choices.';
+    return false;
+  }
+
+  const payload = {
+    request: { ...draft.value },
+    sheet: preview.value,
+  };
+
+  try {
+    const res = await fetch('/api/v1/characters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Save failed');
+
+    // Also save to localStorage as fallback
+    const existing = JSON.parse(localStorage.getItem('onatar-characters') || '[]');
+    existing.push(payload);
+    localStorage.setItem('onatar-characters', JSON.stringify(existing));
+
+    return true;
+  } catch {
+    // Fallback: save locally
+    const existing = JSON.parse(localStorage.getItem('onatar-characters') || '[]');
+    existing.push(payload);
+    localStorage.setItem('onatar-characters', JSON.stringify(existing));
+    return true;
+  }
+}
+
+export function resetBuilder() {
+  pushHistory();
+  draft.value = initialDraft();
+  step.value = 0;
+  preview.value = null;
+  pendingChoices.value = [];
+}
+
+export function loadFromCharacter(character: any) {
+  draft.value = {
+    name: character.name || '',
+    classes: (character.classes || []).map((c: any) => ({
+      id: c.id, level: c.level, subclassId: c.subclassId
+    })),
+    backgroundId: character.backgroundId || '',
+    speciesId: character.speciesId || '',
+    speciesVariant: character.speciesVariant,
+    level: character.level || 1,
+    abilityScores: character.abilities || { ...defaultAbilities },
+    abilityMethod: character.abilityMethod || 'standard',
+    skills: character.skills || [],
+    spells: character.spells || [],
+    feats: character.feats || [],
+  };
+  step.value = 0;
+  requestPreview();
+}
+
+/** Test helper: reset the module singleton between tests. */
+export function _resetBuilder() {
+  draft.value = initialDraft();
+  step.value = 0;
+  preview.value = null;
+  pendingChoices.value = [];
+  isLoading.value = false;
+  error.value = null;
+  history = [{ draft: initialDraft(), step: 0, timestamp: Date.now() }];
+  historyIndex = 0;
 }

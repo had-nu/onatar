@@ -51,16 +51,16 @@ describe('CharacterView interactive sheet', () => {
   it('renders the read-only stats plus editable HP', async () => {
     const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
-    expect(screen.getByRole('heading', { name: 'Novo personagem' })).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'New character' })).toBeTruthy()
     expect(screen.getByText('HP / 20')).toBeTruthy()
-    expect(screen.getByText('CA')).toBeTruthy()
+    expect(screen.getByText('AC')).toBeTruthy()
     expect(getCharacter(c.id)?.live?.hpCurrent).toBe(20)
   })
 
   it('decrements and persists HP via the stepper', async () => {
     const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
-    await fireEvent.click(screen.getByRole('button', { name: 'Diminuir HP' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Decrease HP' }))
     expect(screen.getByText('19')).toBeTruthy()
     expect(getCharacter(c.id)?.live?.hpCurrent).toBe(19)
   })
@@ -68,7 +68,7 @@ describe('CharacterView interactive sheet', () => {
   it('marks a spell slot as used and persists it', async () => {
     const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
-    await fireEvent.click(screen.getByRole('button', { name: 'Marcar nível 1 como usado' }))
+    await fireEvent.click(screen.getByRole('button', { name: 'Mark level 1 as used' }))
     expect(screen.getByText('1/4')).toBeTruthy()
     expect(getCharacter(c.id)?.live?.slotsUsed[0]).toBe(1)
   })
@@ -76,15 +76,15 @@ describe('CharacterView interactive sheet', () => {
   it('toggles a condition', async () => {
     const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
-    await fireEvent.click(screen.getByRole('button', { name: 'cego' }))
-    expect(getCharacter(c.id)?.live?.conditions).toContain('cego')
+    await fireEvent.click(screen.getByRole('button', { name: 'blinded' }))
+    expect(getCharacter(c.id)?.live?.conditions).toContain('blinded')
   })
 
   it('assigns a character to a campaign', async () => {
     const c = await seededCharacter()
     const camp = await createCampaign('Avernus')
     render(CharacterView, { props: { id: c.id } })
-    const select = screen.getByRole('combobox', { name: /campanha/i })
+    const select = screen.getByRole('combobox', { name: /campaign/i })
     await fireEvent.change(select, { target: { value: camp.id } })
     expect(getCharacter(c.id)?.campaignId).toBe(camp.id)
   })

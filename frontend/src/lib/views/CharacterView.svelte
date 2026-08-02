@@ -21,7 +21,7 @@
     const c = getCharacter(id)
     if (!c) {
       status = 'error'
-      error = 'Personagem não encontrado.'
+      error = 'Character not found.'
       return
     }
     sheet = c.sheet ?? null
@@ -142,13 +142,13 @@
 
   function onExportJSON() {
     if (!character) return
-    downloadJSON(`${character.name || 'personagem'}.json`, characterToJSON(character))
+    downloadJSON(`${character.name || 'character'}.json`, characterToJSON(character))
   }
 
   async function onExportPDF() {
     if (!sheetNode) return
     try {
-      await exportCharacterPDF(sheetNode, `${character?.name || 'personagem'}.pdf`)
+      await exportCharacterPDF(sheetNode, `${character?.name || 'character'}.pdf`)
     } catch (err) {
       error = err instanceof Error ? err.message : String(err)
       status = 'error'
@@ -168,44 +168,44 @@
 {#if !character}
   <div class="error-box">
     <p>{error}</p>
-    <button class="btn" onclick={() => navigate('/characters')}>Voltar à lista</button>
+    <button class="btn" onclick={() => navigate('/characters')}>Back to list</button>
   </div>
 {:else}
   <div class="page-head">
     <div>
       <h1>{character.name}</h1>
       <p class="muted">
-        {classNames()} · Nível {sheet?.level ?? '—'}
+        {classNames()} · Level {sheet?.level ?? '—'}
         {#if character.isNpc}<span class="badge">NPC</span>{/if}
       </p>
     </div>
     <div class="head-actions">
-      <button class="btn" onclick={onExportJSON}>Exportar JSON</button>
-      <button class="btn" onclick={onExportPDF} disabled={!sheet}>Exportar PDF</button>
-      <button class="btn" onclick={() => navigate('/characters')}>Voltar</button>
+      <button class="btn" onclick={onExportJSON}>Export JSON</button>
+      <button class="btn" onclick={onExportPDF} disabled={!sheet}>Export PDF</button>
+      <button class="btn" onclick={() => navigate('/characters')}>Back</button>
     </div>
   </div>
 
   {#if status === 'loading'}
-    <p>Calcular ficha…</p>
+    <p>Calculating sheet…</p>
   {:else if status === 'error'}
     <div class="error-box">
       <p>{error}</p>
-      <button class="btn" onclick={retry}>Tentar de novo</button>
+      <button class="btn" onclick={retry}>Try again</button>
     </div>
   {:else if sheet}
     <section class="sheet" bind:this={sheetNode}>
       <div class="stats-row">
         <div class="stat">
           <span class="stat-value">
-            <button class="mini" onclick={() => hpStepper(-1)} aria-label="Diminuir HP">−</button>
+            <button class="mini" onclick={() => hpStepper(-1)} aria-label="Decrease HP">−</button>
             {live.hpCurrent}
-            <button class="mini" onclick={() => hpStepper(1)} aria-label="Aumentar HP">+</button>
+            <button class="mini" onclick={() => hpStepper(1)} aria-label="Increase HP">+</button>
           </span>
           <span class="stat-label">HP / {sheet.hp.max}</span>
         </div>
         <div class="stat">
-          <span class="stat-value">{sheet.ac}</span><span class="stat-label">CA</span>
+          <span class="stat-value">{sheet.ac}</span><span class="stat-label">AC</span>
         </div>
         <div class="stat">
           <span class="stat-value">{modSign(sheet.proficiencyBonus)}</span><span class="stat-label"
@@ -213,12 +213,12 @@
           >
         </div>
         <div class="stat">
-          <span class="stat-value">{sheet.level}</span><span class="stat-label">Nível</span>
+          <span class="stat-value">{sheet.level}</span><span class="stat-label">Level</span>
         </div>
       </div>
 
       <section>
-        <h2>Atributos</h2>
+        <h2>Abilities</h2>
         <ul class="abilities">
           {#each ABILITIES as a (a)}
             <li>
@@ -232,7 +232,7 @@
 
       {#if sheet.spellSlots.some((n) => n > 0)}
         <section>
-          <h2>Espaços de feitiço</h2>
+          <h2>Spell Slots</h2>
           <ul class="slots">
             {#each sheet.spellSlots as max, i (i)}
               {#if max > 0}
@@ -240,8 +240,8 @@
                   <button
                     class="slot"
                     onclick={() => toggleSlot(i)}
-                    aria-label={`Marcar nível ${i + 1} como usado`}
-                    title="Clica para marcar como usado"
+                    aria-label={`Mark level ${i + 1} as used`}
+                    title="Click to mark as used"
                   >
                     <span class="slot-lvl">{i + 1}º</span>
                     <span class="slot-count">{live.slotsUsed[i] ?? 0}/{max}</span>
@@ -255,7 +255,7 @@
 
       {#if resourceNames().length > 0}
         <section>
-          <h2>Recursos</h2>
+          <h2>Resources</h2>
           <ul class="resources">
             {#each resourceNames() as r (r)}
               <li class="resource">
@@ -263,13 +263,13 @@
                 <button
                   class="mini"
                   onclick={() => resourceStepper(r, -1)}
-                  aria-label={`Diminuir ${r}`}>−</button
+                  aria-label={`Decrease ${r}`}>−</button
                 >
                 <span class="resource-val">{resourceCurrent(r)}/{resourceMax(r)}</span>
                 <button
                   class="mini"
                   onclick={() => resourceStepper(r, 1)}
-                  aria-label={`Aumentar ${r}`}>+</button
+                  aria-label={`Increase ${r}`}>+</button
                 >
               </li>
             {/each}
@@ -278,7 +278,7 @@
       {/if}
 
       <section>
-        <h2>Condições</h2>
+        <h2>Conditions</h2>
         <div class="chips">
           {#each CONDITIONS as c (c)}
             {@const on = live.conditions.includes(c)}
@@ -291,11 +291,11 @@
 
       {#if sheet.features.length > 0}
         <section>
-          <h2>Características</h2>
+          <h2>Features</h2>
           <ul class="features">
             {#each sheet.features as f (f.name + f.level)}
               <li>
-                <h3>{f.name} <span class="muted">— nível {f.level}</span></h3>
+                <h3>{f.name} <span class="muted">— level {f.level}</span></h3>
                 {#if f.description}<p>{f.description}</p>{/if}
               </li>
             {/each}
@@ -305,7 +305,7 @@
 
       {#if sheet.pendingChoices.length > 0}
         <section>
-          <h2>Escolhas pendentes</h2>
+          <h2>Pending Choices</h2>
           <ul class="pending">
             {#each sheet.pendingChoices as pc (pc.type + pc.description)}
               <li><strong>{pc.type}</strong> — {pc.description}</li>
@@ -316,9 +316,9 @@
     </section>
 
     <label class="campaign-row">
-      Campanha
+      Campaign
       <select value={character.campaignId ?? ''} onchange={onCampaignChange}>
-        <option value="">— nenhuma —</option>
+        <option value="">— none —</option>
         {#each campaigns.value as c (c.id)}
           <option value={c.id}>{c.name}</option>
         {/each}
@@ -382,8 +382,8 @@
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--text-h);
-    cursor: pointer;
-    vertical-align: middle;
+    cursor: pointer
+    vertical-align: middle
   }
   h2 {
     color: var(--text-h);
@@ -395,152 +395,152 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
-    gap: 0.5rem;
+    gap: 0.5rem
   }
   .abilities li {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.15rem;
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.6rem;
+    align-items: center
+    gap: 0.15rem
+    background: var(--code-bg)
+    border: 1px solid var(--border)
+    border-radius: 8px
+    padding: 0.6rem
   }
   .ability-name {
-    font-size: 0.75rem;
-    font-weight: 700;
-    opacity: 0.7;
+    font-size: 0.75rem
+    font-weight: 700
+    opacity: 0.7
   }
   .ability-score {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text-h);
+    font-size: 1.4rem
+    font-weight: 700
+    color: var(--text-h)
   }
   .ability-mod {
-    color: var(--accent);
+    color: var(--accent)
   }
   .slots {
-    list-style: none;
-    margin: 0 0 1.5rem;
-    padding: 0;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    list-style: none
+    margin: 0 0 1.5rem
+    padding: 0
+    display: flex
+    gap: 0.5rem
+    flex-wrap: wrap
   }
   .slot {
-    font: inherit;
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.5rem 0.9rem;
-    cursor: pointer;
-    color: var(--text);
+    font: inherit
+    display: flex
+    align-items: baseline
+    gap: 0.5rem
+    background: var(--code-bg)
+    border: 1px solid var(--border)
+    border-radius: 8px
+    padding: 0.5rem 0.9rem
+    cursor: pointer
+    color: var(--text)
   }
   .slot:hover {
-    border-color: var(--accent-border);
+    border-color: var(--accent-border)
   }
   .slot-lvl {
-    font-size: 0.75rem;
-    opacity: 0.7;
+    font-size: 0.75rem
+    opacity: 0.7
   }
   .slot-count {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--text-h);
+    font-size: 1.3rem
+    font-weight: 700
+    color: var(--text-h)
   }
   .resources {
-    list-style: none;
-    margin: 0 0 1.5rem;
-    padding: 0;
-    display: grid;
-    gap: 0.5rem;
+    list-style: none
+    margin: 0 0 1.5rem
+    padding: 0
+    display: grid
+    gap: 0.5rem
   }
   .resource {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.5rem 0.9rem;
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    background: var(--code-bg)
+    border: 1px solid var(--border)
+    border-radius: 8px
+    padding: 0.5rem 0.9rem
   }
   .resource-name {
-    font-weight: 600;
-    color: var(--text-h);
-    flex: 1;
+    font-weight: 600
+    color: var(--text-h)
+    flex: 1
   }
   .resource-val {
-    font-weight: 700;
-    color: var(--text-h);
+    font-weight: 700
+    color: var(--text-h)
   }
   .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-bottom: 1.5rem;
+    display: flex
+    flex-wrap: wrap
+    gap: 0.35rem
+    margin-bottom: 1.5rem
   }
   .cond {
-    font: inherit;
-    font-size: 0.8rem;
-    color: var(--text);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.15rem 0.7rem;
-    cursor: pointer;
+    font: inherit
+    font-size: 0.8rem
+    color: var(--text)
+    background: var(--code-bg)
+    border: 1px solid var(--border)
+    border-radius: 999px
+    padding: 0.15rem 0.7rem
+    cursor: pointer
   }
   .cond.active {
-    color: var(--accent);
-    background: var(--accent-bg);
-    border-color: var(--accent-border);
+    color: var(--accent)
+    background: var(--accent-bg)
+    border-color: var(--accent-border)
   }
   .features,
   .pending {
-    list-style: none;
-    margin: 0 0 1.5rem;
-    padding: 0;
-    display: grid;
-    gap: 0.75rem;
+    list-style: none
+    margin: 0 0 1.5rem
+    padding: 0
+    display: grid
+    gap: 0.75rem
   }
   .features h3 {
-    margin: 0;
-    color: var(--text-h);
+    margin: 0
+    color: var(--text-h)
   }
   .features p {
-    margin: 0.25rem 0 0;
-    opacity: 0.85;
+    margin: 0.25rem 0 0
+    opacity: 0.85
   }
   .campaign-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    font-weight: 600;
-    color: var(--text-h);
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-top: 0.5rem
+    font-weight: 600
+    color: var(--text-h)
   }
   select {
-    font: inherit;
-    color: var(--text-h);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.3rem 0.6rem;
+    font: inherit
+    color: var(--text-h)
+    background: var(--bg)
+    border: 1px solid var(--border)
+    border-radius: 8px
+    padding: 0.3rem 0.6rem
   }
   .error-box {
-    border: 1px solid var(--danger-border);
-    background: var(--danger-bg);
-    color: var(--text-h);
-    border-radius: 8px;
-    padding: 1.25rem;
-    display: grid;
-    gap: 0.75rem;
-    justify-items: start;
+    border: 1px solid var(--danger-border)
+    background: var(--danger-bg)
+    color: var(--text-h)
+    border-radius: 8px
+    padding: 1.25rem
+    display: grid
+    gap: 0.75rem
+    justify-items: start
   }
   .error-box p {
-    margin: 0;
+    margin: 0
   }
 </style>

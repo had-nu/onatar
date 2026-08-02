@@ -17,17 +17,17 @@
 </script>
 
 <div class="page-head">
-  <h1>Campanhas</h1>
-  <p class="muted">Agrupa os teus personagens por campanha (estrutura mínima).</p>
+  <h1>Campaigns</h1>
+  <p class="muted">Group your characters by campaign (minimal structure).</p>
 </div>
 
 <form class="create" onsubmit={(e) => e.preventDefault()}>
-  <input bind:value={newName} placeholder="Nome da campanha" />
-  <button class="btn primary" onclick={add}>Criar campanha</button>
+  <input bind:value={newName} placeholder="Campaign name" />
+  <button class="btn primary" onclick={add}>Create Campaign</button>
 </form>
 
 {#if listCampaigns().length === 0}
-  <p class="muted empty">Ainda não há campanhas. Cria a primeira acima.</p>
+  <p class="muted empty">No campaigns yet. Create the first one above.</p>
 {:else}
   <ul class="grid">
     {#each listCampaigns() as c (c.id)}
@@ -38,21 +38,21 @@
             <button
               class="btn danger"
               onclick={() => {
-                if (confirm(`Apagar a campanha "${c.name}"?`)) deleteCampaign(c.id)
+                if (confirm(`Delete campaign "${c.name}"?`)) deleteCampaign(c.id)
               }}
-              aria-label={`Apagar ${c.name}`}
+              aria-label={`Delete ${c.name}`}
             >
-              Apagar
+              Delete
             </button>
           </header>
-          <p class="muted">{membersOf(c.id)} personagens</p>
+          <p class="muted">{membersOf(c.id)} characters</p>
         </article>
       </li>
     {/each}
   </ul>
 {/if}
 
-<p class="muted back"><a href="#/characters">← Voltar aos personagens</a></p>
+<p class="muted back"><a href="#/characters">← Back to characters</a></p>
 
 <style>
   .page-head {

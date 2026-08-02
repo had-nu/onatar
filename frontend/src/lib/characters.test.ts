@@ -41,7 +41,7 @@ describe('characters CRUD', () => {
   it('creates, lists and gets a character', async () => {
     const c = await createCharacter(starterDraft())
     expect(listCharacters()).toHaveLength(1)
-    expect(getCharacter(c.id)?.name).toBe('Novo personagem')
+    expect(getCharacter(c.id)?.name).toBe('New character')
     expect(getCharacter('missing')).toBeUndefined()
   })
 

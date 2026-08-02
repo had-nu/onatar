@@ -55,8 +55,8 @@
   {:else}
     <div class="notfound">
       <h1>404</h1>
-      <p>Página não encontrada.</p>
-      <a class="btn" href="#/">Voltar ao início</a>
+      <p>Page not found.</p>
+      <a class="btn" href="#/">Back to home</a>
     </div>
   {/if}
 </Shell>

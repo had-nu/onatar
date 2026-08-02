@@ -1,5 +1,5 @@
 <script lang="ts">
-  // RF-08 (Fase 2 v1.1): import a D&D Beyond PDF (or JSON) into an editable
+  // RF-08 (Phase 2 v1.1): import a D&D Beyond PDF (or JSON) into an editable
   // draft. Extraction is tolerant; the review step is mandatory before create.
   import { onMount } from 'svelte'
   import { navigate } from '../router.svelte'
@@ -23,7 +23,7 @@
       await loadContent()
       contentReady = true
     } catch {
-      error = 'Não foi possível carregar o conteúdo de regras. Verifica a ligação ao servidor.'
+      error = 'Failed to load rules content. Check server connection.'
     }
   })
 
@@ -40,10 +40,10 @@
     try {
       const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name)
       const isJson = /\.json$/i.test(file.name)
-      if (!isPdf && !isJson) throw new Error('Apenas PDF ou JSON são suportados.')
+      if (!isPdf && !isJson) throw new Error('Only PDF or JSON files are supported.')
 
       const content = contentReady ? await loadContent() : null
-      if (!content) throw new Error('Conteúdo de regras indisponível.')
+      if (!content) throw new Error('Rules content unavailable.')
 
       if (isJson) {
         const { parseDDBJSON } = await import('../import/ddb')
@@ -55,7 +55,7 @@
       status = 'review'
     } catch (e) {
       status = 'idle'
-      error = e instanceof Error ? e.message : 'Falha ao ler o ficheiro.'
+      error = e instanceof Error ? e.message : 'Failed to read file.'
     }
   }
 
@@ -72,14 +72,14 @@
     } catch {
       status = 'review'
       saving = false
-      error = 'Falha ao guardar a personagem. Revê os valores e tenta novamente.'
+      error = 'Failed to save character. Review values and try again.'
     }
   }
 </script>
 
 <div class="page-head">
-  <h1>Importar</h1>
-  <p class="muted">Importa uma ficha do D&D Beyond (PDF ou JSON) e cria um draft editável.</p>
+  <h1>Import</h1>
+  <p class="muted">Import a D&D Beyond character (PDF or JSON) and create an editable draft.</p>
 </div>
 
 {#if status === 'idle' || status === 'parsing'}
@@ -104,11 +104,11 @@
       onchange={(e) => handleFile(e.currentTarget.files?.[0])}
       hidden
     />
-    <strong>{status === 'parsing' ? 'A ler o ficheiro…' : 'Arrasta um PDF/JSON aqui'}</strong>
+    <strong>{status === 'parsing' ? 'Reading file…' : 'Drag a PDF/JSON here'}</strong>
     <span class="muted"
-      >ou
-      <a href="javascript:void(0)" onclick={() => fileInput?.click()}>seleciona o ficheiro</a>
-      (máx. 5 MiB)</span
+      >or
+      <button class="btn-link" onclick={() => fileInput?.click()}>select file</button>
+      (max 5 MiB)</span
     >
   </label>
 {/if}
@@ -119,16 +119,16 @@
 
 {#if status === 'review' && parsed}
   <section class="review">
-    <h2>Revisão</h2>
-    <p class="muted">Confirma os valores extraídos antes de criar o personagem.</p>
+    <h2>Review</h2>
+    <p class="muted">Confirm extracted values before creating the character.</p>
 
     <div class="field">
-      <label for="imp-name">Nome</label>
+      <label for="imp-name">Name</label>
       <input id="imp-name" bind:value={parsed.name} />
     </div>
 
     <div class="field">
-      <label for="imp-class">Classe</label>
+      <label for="imp-class">Class</label>
       <select id="imp-class" bind:value={parsed.classes[0].id}>
         <option value={parsed.classes[0].id}>{parsed.classes[0].id}</option>
       </select>
@@ -136,14 +136,14 @@
         type="number"
         min="1"
         max="20"
-        aria-label="Nível"
+        aria-label="Level"
         bind:value={parsed.classes[0].level}
       />
     </div>
 
     <div class="field">
-      <label>Atributos</label>
-      <div class="scores">
+      <label id="abilities-label">Abilities</label>
+      <div class="scores" aria-labelledby="abilities-label">
         {#each ABILITIES as a (a)}
           <div class="score">
             <span>{a}</span>
@@ -154,8 +154,8 @@
     </div>
 
     <div class="field">
-      <label>Feitiços</label>
-      <ul class="chips">
+      <label id="spells-label">Spells</label>
+      <ul class="chips" aria-labelledby="spells-label">
         {#each parsed.spellIds as id (id)}
           <li>{id}</li>
         {/each}
@@ -163,8 +163,8 @@
     </div>
 
     <div class="field">
-      <label>Talento</label>
-      <ul class="chips">
+      <label id="feat-label">Feat</label>
+      <ul class="chips" aria-labelledby="feat-label">
         {#each parsed.featIds as id (id)}
           <li>{id}</li>
         {/each}
@@ -173,19 +173,19 @@
 
     <label class="check">
       <input type="checkbox" bind:checked={reviewChecked} />
-      Confirmo que revi os valores acima.
+      I confirm I have reviewed the values above.
     </label>
 
     <div class="actions">
-      <button class="btn" onclick={() => (status = 'idle')}>Cancelar</button>
+      <button class="btn" onclick={() => (status = 'idle')}>Cancel</button>
       <button class="btn primary" disabled={!reviewChecked || saving} onclick={create}>
-        {saving ? 'A guardar…' : 'Criar personagem'}
+        {saving ? 'Saving…' : 'Create Character'}
       </button>
     </div>
   </section>
 {/if}
 
-<p class="muted back"><a href="#/characters">← Voltar aos personagens</a></p>
+<p class="muted back"><a href="#/characters">← Back to characters</a></p>
 
 <style>
   .page-head {

@@ -42,24 +42,22 @@
 </script>
 
 <div class="page-head">
-  <h1>Conteúdo</h1>
-  <p class="muted">Regras de classes, espécies e backgrounds (SRD 5.2)</p>
+  <h1>Content</h1>
+  <p class="muted">Classes, species, and backgrounds rules (SRD 5.2)</p>
 </div>
 
 <div class="tabs">
   <button class:active={tab === 'classes'} onclick={() => (tab = 'classes')}>Classes</button>
-  <button class:active={tab === 'species'} onclick={() => (tab = 'species')}>Espécies</button>
-  <button class:active={tab === 'backgrounds'} onclick={() => (tab = 'backgrounds')}
-    >Backgrounds</button
-  >
+  <button class:active={tab === 'species'} onclick={() => (tab = 'species')}>Species</button>
+  <button class:active={tab === 'backgrounds'} onclick={() => (tab = 'backgrounds')}>Backgrounds</button>
 </div>
 
 {#if status === 'loading'}
-  <p>Carregar conteúdo…</p>
+  <p>Loading content…</p>
 {:else if status === 'error'}
   <div class="error-box">
     <p>
-      Não foi possível carregar o conteúdo{contentError.value ? `: ${contentError.value}` : ''}.
+      Failed to load content{contentError.value ? `: ${contentError.value}` : ''}.
     </p>
     <button
       class="btn"
@@ -68,12 +66,12 @@
           .then(() => (status = 'ready'))
           .catch(() => undefined)}
     >
-      Tentar de novo
+      Try Again
     </button>
   </div>
 {:else}
   {#await loadContent()}
-    <p>Carregar conteúdo…</p>
+    <p>Loading content…</p>
   {:then data}
     {#if tab === 'classes'}
       <ul class="grid">
@@ -83,11 +81,11 @@
               <h2>{c.name}</h2>
               <p class="badges">
                 <span class="badge">{c.hitDie}</span>
-                <span class="badge">{c.spellcaster ? 'conjurador' : 'marcial'}</span>
+                <span class="badge">{c.spellcaster ? 'spellcaster' : 'martial'}</span>
               </p>
               <p class="muted">{descriptionOf(c.data)}{primaryAbilityOf(c)}</p>
               {#if c.suggestedSpecies.length > 0}
-                <p class="chips-label">Espécies sugeridas</p>
+                <p class="chips-label">Suggested Species</p>
                 <p class="chips">
                   {#each c.suggestedSpecies as s (s)}
                     <span class="chip">{s}</span>

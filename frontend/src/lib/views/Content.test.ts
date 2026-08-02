@@ -54,14 +54,14 @@ describe('Content view', () => {
   it('renders class cards with suggestions', async () => {
     render(ContentView)
     expect(await screen.findByText('Sorcerer')).toBeTruthy()
-    expect(screen.getByText('Espécies sugeridas')).toBeTruthy()
+    expect(screen.getByText('Suggested Species')).toBeTruthy()
     expect(screen.getByText('tiefling')).toBeTruthy()
   })
 
   it('switches to the species tab', async () => {
     render(ContentView)
     await screen.findByText('Sorcerer')
-    const tab = screen.getByRole('button', { name: 'Espécies' })
+    const tab = screen.getByRole('button', { name: 'Species' })
     await tab.click()
     expect(await screen.findByText('Tiefling')).toBeTruthy()
   })
@@ -73,6 +73,6 @@ describe('Content view', () => {
       vi.fn(() => Promise.reject(new TypeError('network down')))
     )
     render(ContentView)
-    expect(await screen.findByText(/não foi possível carregar/i)).toBeTruthy()
+    expect(await screen.findByText(/failed to load content/i)).toBeTruthy()
   })
 })

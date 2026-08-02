@@ -1,7 +1,9 @@
 // Content store: loads GET /api/v1/content once, keeps an in-memory copy and a
 // localStorage cache so the app degrades gracefully offline (PRD RNF-03).
+// Falls back to mockData if API unavailable.
 import { box } from './box.svelte'
 import type { Class, Content, Species } from './types'
+import { mockClasses, mockSpecies, mockBackgrounds, mockSpells, mockFeats, mockFeatures } from './mockData'
 
 const KEY = 'onatar.content'
 
@@ -33,7 +35,68 @@ function writeCache(data: Content) {
   }
 }
 
-/** Load content from the API, falling back to the localStorage cache. */
+function buildMockContent(): Content {
+  return {
+    classes: mockClasses.map(c => ({
+      id: c.id,
+      name: c.name,
+      hitDie: `d${c.hitDie}`,
+      spellcaster: c.spellcaster,
+      subclassLevel: c.subclassLevel ?? 3,
+      suggestedSpecies: [],
+      suggestedBackgrounds: [],
+      data: {
+        ...c,
+        primaryAbility: c.primaryAbility[0],
+      },
+    })),
+    subclasses: mockClasses.flatMap(c =>
+      (c.subClasses ?? []).map(sc => ({
+        id: sc.id,
+        classId: c.id,
+        name: sc.name,
+        levelRequired: c.subclassLevel ?? 3,
+        data: { description: sc.description },
+      }))
+    ),
+    species: mockSpecies.map(s => ({
+      id: s.id,
+      name: s.name,
+      data: {
+        traits: s.traits,
+        abilityScores: s.abilityBonuses,
+        description: s.description,
+        size: s.size,
+        speed: s.speed,
+        languages: s.languages,
+        variants: s.variants,
+      },
+    })),
+    backgrounds: mockBackgrounds.map(b => ({
+      id: b.id,
+      name: b.name,
+      data: {
+        skillProficiencies: b.skillProficiencies,
+        toolProficiencies: b.toolProficiencies,
+        languages: b.languages,
+        equipment: b.equipment,
+        feature: b.feature,
+        description: b.description,
+      },
+    })),
+    spells: mockSpells.map(s => ({
+      id: s.id,
+      name: s.name,
+      level: s.level,
+      school: s.school,
+      data: { description: s.description },
+    })),
+    feats: mockFeats,
+    features: mockFeatures,
+  }
+}
+
+/** Load content from the API, falling back to the localStorage cache, then mockData. */
 export async function loadContent(force = false): Promise<Content> {
   if (content.value && !force) return content.value
   contentError.value = ''
@@ -50,8 +113,11 @@ export async function loadContent(force = false): Promise<Content> {
       content.value = cached
       return cached
     }
-    contentError.value = err instanceof Error ? err.message : String(err)
-    throw err
+    // Fallback to mock data
+    const mock = buildMockContent()
+    content.value = mock
+    writeCache(mock)
+    return mock
   }
 }
 

@@ -268,6 +268,21 @@ export interface SpellEntry {
   description: string
 }
 
+export interface FeatEntry {
+  id: string
+  name: string
+  prerequisites: Record<string, unknown>
+  description: string
+}
+
+export interface FeatureEntry {
+  id: string
+  classId?: string
+  name: string
+  level: number
+  description: string
+}
+
 export interface BuildRequestNew {
   name: string
   classes: ClassReq[]

@@ -12,26 +12,26 @@
   }
 
   function remove(c: Character) {
-    if (window.confirm(`Apagar "${c.name}"?`)) {
+    if (window.confirm(`Delete "${c.name}"?`)) {
       deleteCharacter(c.id)
     }
   }
 
   function classSummary(c: Character): string {
     const levels = c.draft.classes.map((x) => `${x.id} ${x.level}`).join(', ')
-    return levels || 'Sem classes'
+    return levels || 'No classes'
   }
 </script>
 
 <div class="page-head">
-  <h1>Os meus personagens</h1>
-  <button class="btn primary" onclick={create}>Novo personagem</button>
+  <h1>My Characters</h1>
+  <button class="btn primary" onclick={create}>New Character</button>
 </div>
 
 {#if characters.value.length === 0}
   <div class="empty">
-    <p>Ainda não tens personagens.</p>
-    <button class="btn primary" onclick={create}>Criar o primeiro</button>
+    <p>No characters yet.</p>
+    <button class="btn primary" onclick={create}>Create First</button>
   </div>
 {:else}
   <ul class="grid">
@@ -44,8 +44,8 @@
           </div>
           <p class="muted">{classSummary(c)}</p>
           <div class="actions">
-            <button class="btn" onclick={() => open(c)}>Abrir</button>
-            <button class="btn danger" onclick={() => remove(c)}>Apagar</button>
+            <button class="btn" onclick={() => open(c)}>Open</button>
+            <button class="btn danger" onclick={() => remove(c)}>Delete</button>
           </div>
         </article>
       </li>

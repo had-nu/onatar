@@ -1,5 +1,5 @@
 <script lang="ts">
-  // RF-09 (Fase 2 v1.2): combat tracker — initiative, HP, conditions.
+  // RF-09 (Phase 2 v1.2): combat tracker — initiative, HP, conditions.
   import {
     addCharacterToCombat,
     addCombatant,
@@ -44,7 +44,7 @@
   function addRaw() {
     if (!selectedId) return
     addCombatant(selectedId, {
-      name: 'Novo',
+      name: 'New',
       initiative: 0,
       hpCurrent: 10,
       hpMax: 10,
@@ -65,18 +65,18 @@
 </script>
 
 <div class="page-head">
-  <h1>Combate</h1>
-  <p class="muted">Regista iniciativa, HP e condições durante os encontros (local).</p>
+  <h1>Combat</h1>
+  <p class="muted">Track initiative, HP, and conditions during encounters (local).</p>
 </div>
 
 {#if !selectedId}
   <form class="create" onsubmit={(e) => e.preventDefault()}>
-    <input bind:value={newName} placeholder="Nome do combate" />
-    <button class="btn primary" onclick={create}>Novo combate</button>
+    <input bind:value={newName} placeholder="Combat name" />
+    <button class="btn primary" onclick={create}>New Combat</button>
   </form>
 
   {#if listSessions().length === 0}
-    <p class="muted empty">Ainda não há combates.</p>
+    <p class="muted empty">No combats yet.</p>
   {:else}
     <ul class="sessions">
       {#each listSessions() as s (s.id)}
@@ -92,38 +92,38 @@
       <h2>{combatants.name}</h2>
       <span class="round">Round {combatants.round}</span>
       <div class="controls">
-        <button class="btn" onclick={() => open('')} aria-label="Voltar">←</button>
+        <button class="btn" onclick={() => open('')} aria-label="Back">←</button>
         <button
           class="btn danger"
           onclick={() => {
-            if (confirm(`Terminar o combate "${combatants!.name}"?`)) {
+            if (confirm(`End combat "${combatants!.name}"?`)) {
               deleteSession(combatants!.id)
               selectedId = ''
               combatants = undefined
             }
           }}
         >
-          Terminar
+          End
         </button>
       </div>
     </header>
 
     <div class="add-row">
       <select
-        aria-label="Adicionar personagem"
+        aria-label="Add character"
         onchange={(e) => addFromList(e.currentTarget.value)}
       >
-        <option value="">+ Adicionar personagem…</option>
+        <option value="">+ Add character…</option>
         {#each listCharacters() as c (c.id)}
           <option value={c.id}>{c.name}{c.isNpc ? ' (NPC)' : ''}</option>
         {/each}
       </select>
-      <button class="btn" onclick={addRaw}>+ Avulso</button>
-      <button class="btn" onclick={() => apply(sortByInitiative)}>Ordenar iniciativa</button>
+      <button class="btn" onclick={addRaw}>+ Ad Hoc</button>
+      <button class="btn" onclick={() => apply(sortByInitiative)}>Sort Initiative</button>
     </div>
 
     {#if combatants.combatants.length === 0}
-      <p class="muted empty">Adiciona combatentes para começar.</p>
+      <p class="muted empty">Add combatants to begin.</p>
     {:else}
       <ol class="combatants">
         {#each combatants.combatants as c, i (c.id)}
@@ -132,7 +132,7 @@
               <span class="init">
                 <input
                   type="number"
-                  aria-label={`Iniciativa de ${c.name}`}
+                  aria-label={`Initiative for ${c.name}`}
                   value={c.initiative}
                   onchange={(e) =>
                     apply(() => setInitiative(combatants!.id, c.id, Number(e.currentTarget.value)))}
@@ -172,17 +172,17 @@
                 apply(() => removeCombatant(combatants!.id, c.id))
               }}
             >
-              Remover
+              Remove
             </button>
           </li>
         {/each}
       </ol>
 
       <div class="turn-nav">
-        <button class="btn" onclick={() => apply(prevTurn)}>← Anterior</button>
-        <span class="muted">Turno {combatants.turnIndex + 1} de {combatants.combatants.length}</span
+        <button class="btn" onclick={() => apply(prevTurn)}>← Previous</button>
+        <span class="muted">Turn {combatants.turnIndex + 1} of {combatants.combatants.length}</span
         >
-        <button class="btn primary" onclick={() => apply(nextTurn)}>Seguinte →</button>
+        <button class="btn primary" onclick={() => apply(nextTurn)}>Next →</button>
       </div>
     {/if}
   </section>
@@ -307,7 +307,7 @@
     border: 1px solid var(--border);
     border-radius: 999px;
     padding: 0.1rem 0.55rem;
-    cursor: pointer;
+    cursor: pointer
   }
   .chip.on {
     color: var(--accent);

@@ -55,7 +55,7 @@ const {
     }),
     mockSaveCharacter: vi.fn((c: import('./characters.svelte').Character) => c),
     mockStarterDraft: vi.fn(() => ({
-      name: 'Novo personagem',
+      name: 'New character',
       classes: [{ id: 'fighter', level: 1 }],
       speciesId: 'human',
       backgroundId: 'sage',
