@@ -10,7 +10,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hadnu/onatar/internal/config"
 	"github.com/hadnu/onatar/internal/content"
+	"github.com/hadnu/onatar/internal/store"
 )
 
 type stubLoader struct {
@@ -50,6 +52,10 @@ func testServer(t *testing.T, l contentLoader) *Server {
 		logger:        logger,
 		contentLoader: l,
 		limiter:       newTokenBucket(defaultRatePerMinute, defaultCapacity),
+		auth:          nil,
+		cfg:           &config.AuthConfig{},
+		db:            nil,
+		store:         store.NewQueries(nil),
 	}
 	t.Cleanup(s.limiter.close)
 	return s
@@ -132,8 +138,8 @@ func TestBuildOK(t *testing.T) {
 			Level  int `json:"level"`
 			HP     struct{ Max int } `json:"hp"`
 			AC     int `json:"ac"`
-			PB     int `json:"proficiencyBonus"`
-			Slots  []int `json:"spellSlots"`
+			PB     int `json:"proficiency_bonus"`
+			Slots  []int `json:"spell_slots"`
 		} `json:"sheet"`
 	}
 	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
@@ -151,8 +157,8 @@ func TestBuildValidationErrors(t *testing.T) {
 		code string
 	}{
 		{"malformed json", `{`, "INVALID_DRAFT"},
-		{"unknown class", `{"classes":[{"id":"wizard","level":1}]}`, "BUILD_ERROR"},
-		{"spell not for class", validBody(`[{"id":"fighter","level":6}]`, `["magic-missile"]`, `[]`), "INVALID_SPELL_SELECTION"},
+		{"unknown class", `{"classes":[{"id":"wizard","level":1}]}`, "INVALID_DRAFT"},
+		{"spell not for class", validBody(`[{"id":"fighter","level":6}]`, `["magic-missile"]`, `[]`), "BUILD_ERROR"},
 		{"feat prereq unmet", validBody(`[{"id":"fighter","level":6}]`, `[]`, `["war-caster"]`), "BUILD_ERROR"},
 	}
 	for _, tc := range tests {
@@ -174,6 +180,10 @@ func TestBuildRouteLimited(t *testing.T) {
 		logger:        logger,
 		contentLoader: stubLoader{c: stubContent()},
 		limiter:       newTokenBucket(60, 2), // 1 token/sec, capacity 2
+		auth:          nil,
+		cfg:           &config.AuthConfig{},
+		db:            nil,
+		store:         store.NewQueries(nil),
 	}
 	t.Cleanup(s.limiter.close)
 

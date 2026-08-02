@@ -38,15 +38,15 @@ beforeEach(() => {
 })
 
 describe('characters CRUD', () => {
-  it('creates, lists and gets a character', () => {
-    const c = createCharacter(starterDraft())
+  it('creates, lists and gets a character', async () => {
+    const c = await createCharacter(starterDraft())
     expect(listCharacters()).toHaveLength(1)
     expect(getCharacter(c.id)?.name).toBe('Novo personagem')
     expect(getCharacter('missing')).toBeUndefined()
   })
 
-  it('persists to localStorage', () => {
-    const c = createCharacter(starterDraft())
+  it('persists to localStorage', async () => {
+    const c = await createCharacter(starterDraft())
     const raw = JSON.parse(localStorage.getItem('onatar.characters') ?? '[]') as Array<{
       id: string
     }>
@@ -54,43 +54,43 @@ describe('characters CRUD', () => {
     expect(raw[0].id).toBe(c.id)
   })
 
-  it('saveCharacter updates fields', () => {
-    const c = createCharacter(starterDraft())
-    saveCharacter({ ...c, name: 'Bruxa' })
+  it('saveCharacter updates fields', async () => {
+    const c = await createCharacter(starterDraft())
+    await saveCharacter({ ...c, name: 'Bruxa' })
     expect(getCharacter(c.id)?.name).toBe('Bruxa')
   })
 
-  it('deleteCharacter removes the character', () => {
-    const c = createCharacter(starterDraft())
-    deleteCharacter(c.id)
+  it('deleteCharacter removes the character', async () => {
+    const c = await createCharacter(starterDraft())
+    await deleteCharacter(c.id)
     expect(listCharacters()).toHaveLength(0)
   })
 
-  it('setLive stores editable sheet state', () => {
-    const c = createCharacter(starterDraft())
+  it('setLive stores editable sheet state', async () => {
+    const c = await createCharacter(starterDraft())
     const live = {
       hpCurrent: 7,
       slotsUsed: [1, 0, 0, 0, 0, 0, 0, 0, 0],
       conditions: ['cego'],
       resources: {},
     }
-    setLive(c.id, live)
+    await setLive(c.id, live)
     expect(getCharacter(c.id)?.live?.hpCurrent).toBe(7)
     expect(getCharacter(c.id)?.live?.conditions).toEqual(['cego'])
   })
 
-  it('setCampaign links a character to a campaign', () => {
-    const c = createCharacter(starterDraft())
-    setCampaign(c.id, 'camp-1')
+  it('setCampaign links a character to a campaign', async () => {
+    const c = await createCharacter(starterDraft())
+    await setCampaign(c.id, 'camp-1')
     expect(getCharacter(c.id)?.campaignId).toBe('camp-1')
-    setCampaign(c.id, undefined)
+    await setCampaign(c.id, undefined)
     expect(getCharacter(c.id)?.campaignId).toBeUndefined()
   })
 })
 
 describe('buildCharacter', () => {
   it('posts the draft and caches the sheet', async () => {
-    const c = createCharacter(starterDraft())
+    const c = await createCharacter(starterDraft())
     const fetchMock = vi.fn(() =>
       Promise.resolve(new Response(JSON.stringify({ sheet }), { status: 200 }))
     )
@@ -106,8 +106,8 @@ describe('buildCharacter', () => {
   })
 
   it('falls back to the cached sheet when offline', async () => {
-    const c = createCharacter(starterDraft())
-    saveCharacter({ ...c, sheet })
+    const c = await createCharacter(starterDraft())
+    await saveCharacter({ ...c, sheet })
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new TypeError('offline')))
@@ -118,7 +118,7 @@ describe('buildCharacter', () => {
   })
 
   it('throws when offline and no cached sheet exists', async () => {
-    const c = createCharacter(starterDraft())
+    const c = await createCharacter(starterDraft())
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new TypeError('offline')))
@@ -127,7 +127,7 @@ describe('buildCharacter', () => {
   })
 
   it('surfaces the API error message', async () => {
-    const c = createCharacter(starterDraft())
+    const c = await createCharacter(starterDraft())
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>

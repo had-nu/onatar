@@ -29,11 +29,11 @@ const sheet: Sheet = {
   pendingChoices: [],
 }
 
-function seededCharacter() {
+async function seededCharacter() {
   _resetCharacters()
-  const c = createCharacter(starterDraft())
+  const c = await createCharacter(starterDraft())
   const withSheet = { ...getCharacter(c.id)!, sheet }
-  saveCharacter(withSheet)
+  await saveCharacter(withSheet)
   return withSheet
 }
 
@@ -49,7 +49,7 @@ beforeEach(() => {
 
 describe('CharacterView interactive sheet', () => {
   it('renders the read-only stats plus editable HP', async () => {
-    const c = seededCharacter()
+    const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
     expect(screen.getByRole('heading', { name: 'Novo personagem' })).toBeTruthy()
     expect(screen.getByText('HP / 20')).toBeTruthy()
@@ -58,7 +58,7 @@ describe('CharacterView interactive sheet', () => {
   })
 
   it('decrements and persists HP via the stepper', async () => {
-    const c = seededCharacter()
+    const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
     await fireEvent.click(screen.getByRole('button', { name: 'Diminuir HP' }))
     expect(screen.getByText('19')).toBeTruthy()
@@ -66,7 +66,7 @@ describe('CharacterView interactive sheet', () => {
   })
 
   it('marks a spell slot as used and persists it', async () => {
-    const c = seededCharacter()
+    const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
     await fireEvent.click(screen.getByRole('button', { name: 'Marcar nível 1 como usado' }))
     expect(screen.getByText('1/4')).toBeTruthy()
@@ -74,15 +74,15 @@ describe('CharacterView interactive sheet', () => {
   })
 
   it('toggles a condition', async () => {
-    const c = seededCharacter()
+    const c = await seededCharacter()
     render(CharacterView, { props: { id: c.id } })
     await fireEvent.click(screen.getByRole('button', { name: 'cego' }))
     expect(getCharacter(c.id)?.live?.conditions).toContain('cego')
   })
 
   it('assigns a character to a campaign', async () => {
-    const c = seededCharacter()
-    const camp = createCampaign('Avernus')
+    const c = await seededCharacter()
+    const camp = await createCampaign('Avernus')
     render(CharacterView, { props: { id: c.id } })
     const select = screen.getByRole('combobox', { name: /campanha/i })
     await fireEvent.change(select, { target: { value: camp.id } })

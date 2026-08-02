@@ -5,6 +5,7 @@ import { tick } from 'svelte'
 
 export type RouteName =
   | 'home'
+  | 'login'
   | 'characters'
   | 'character'
   | 'content'
@@ -21,6 +22,7 @@ export interface MatchedRoute {
 
 const patterns: Record<RouteName, RegExp> = {
   home: /^\/$/,
+  login: /^\/login$/,
   characters: /^\/characters$/,
   character: /^\/characters\/([^/]+)$/,
   content: /^\/content$/,

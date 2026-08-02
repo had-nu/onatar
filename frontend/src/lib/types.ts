@@ -1,6 +1,15 @@
 // Types matching the backend API contract (PRD §3.5 GET /content, POST /build).
 
 export type Ability = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA'
+
+export interface User {
+  id: string
+  github_id: number
+  login: string
+  name: string | null
+  avatar_url: string | null
+  email: string | null
+}
 export const ABILITIES: Ability[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
 export interface Content {

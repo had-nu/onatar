@@ -37,7 +37,7 @@ func main() {
 	}
 	defer func() { _ = db.Close() }()
 
-	srv := httpapi.New(db, logger, version)
+	srv := httpapi.New(db, logger, version, cfg)
 
 	s := &http.Server{
 		Addr:              cfg.HTTPAddr,

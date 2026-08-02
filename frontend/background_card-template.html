@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card — Acólito</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1814;
+    padding: 20px;
+    font-family: 'Source Serif 4', Georgia, serif;
+  }
+
+  .card {
+    width: 340px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    background: #110f1c;
+  }
+
+  /* ── Temple Image Area ── */
+  .temple-area {
+    position: relative;
+    width: 100%;
+    height: 130px;
+    overflow: hidden;
+  }
+
+  .temple-sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      #e8c99b 0%,
+      #d4a76a 15%,
+      #c9843f 35%,
+      #a0522d 55%,
+      #6b3d1a 75%,
+      #2a1508 100%);
+  }
+
+  .temple-dome {
+    position: absolute;
+    bottom: 8px;
+    left: 95px;
+    width: 150px;
+    height: 70px;
+    background: linear-gradient(180deg,
+      #d4a76a 0%,
+      #a06830 40%,
+      #5a2d0c 80%,
+      #2a1508 100%);
+    border-radius: 75px 75px 0 0;
+  }
+
+  .temple-dome-inner {
+    position: absolute;
+    bottom: 8px;
+    left: 105px;
+    width: 130px;
+    height: 60px;
+    background: linear-gradient(180deg,
+      #e8c99b 0%,
+      #c99452 40%,
+      #7a4520 80%,
+      #3a1f0a 100%);
+    border-radius: 65px 65px 0 0;
+  }
+
+  .temple-sun {
+    position: absolute;
+    top: 12px;
+    right: 55px;
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle at 35% 35%,
+      rgba(255,250,220,0.95) 0%,
+      rgba(255,230,160,0.6) 35%,
+      rgba(255,200,100,0.2) 60%,
+      transparent 75%);
+    border-radius: 50%;
+  }
+
+  .obelisk {
+    position: absolute;
+    bottom: 0;
+    background: linear-gradient(180deg, #3d1f0a 0%, #1a0d05 100%);
+    border-radius: 1px 1px 0 0;
+  }
+
+  .obelisk:nth-child(4) { left: 15px; width: 8px; height: 55px; }
+  .obelisk:nth-child(5) { left: 32px; width: 7px; height: 48px; }
+  .obelisk:nth-child(6) { left: 48px; width: 9px; height: 62px; }
+  .obelisk:nth-child(7) { left: 66px; width: 7px; height: 50px; }
+  .obelisk:nth-child(8) { left: 82px; width: 8px; height: 58px; }
+
+  .temple-water {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 22px;
+    background: linear-gradient(180deg,
+      rgba(60,30,10,0.5) 0%,
+      rgba(40,20,8,0.7) 50%,
+      rgba(20,10,4,0.9) 100%);
+  }
+
+  .palm-trunk {
+    position: absolute;
+    bottom: 18px;
+    width: 2px;
+    background: #2a1508;
+    border-radius: 1px;
+  }
+
+  .palm-leaves {
+    position: absolute;
+    background: #1a3d1a;
+    border-radius: 50%;
+  }
+
+  .palm-1 .palm-trunk { left: 240px; height: 25px; }
+  .palm-1 .palm-leaves { bottom: 38px; left: 234px; width: 14px; height: 7px; }
+
+  .palm-2 .palm-trunk { left: 265px; height: 18px; }
+  .palm-2 .palm-leaves { bottom: 31px; left: 259px; width: 12px; height: 6px; }
+
+  .moon {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle at 30% 30%, #fff8e0, #c4b490);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255,248,200,0.25);
+  }
+
+  /* ── Golden Separator ── */
+  .separator-gold {
+    height: 10px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      #8b6914 8%,
+      #c9a84c 25%,
+      #f0d878 45%,
+      #f5e8a8 50%,
+      #f0d878 55%,
+      #c9a84c 75%,
+      #8b6914 92%,
+      transparent 100%);
+  }
+
+  .separator-dark {
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      #5a4510 15%,
+      #8b6914 50%,
+      #5a4510 85%,
+      transparent 100%);
+  }
+
+  /* ── Content Area ── */
+  .content {
+    background: linear-gradient(180deg,
+      #faf6ed 0%,
+      #f5f0e3 40%,
+      #efe8d6 100%);
+    padding: 14px 16px 16px;
+    position: relative;
+  }
+
+  .content::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(201,168,76,0.4) 20%,
+      rgba(201,168,76,0.6) 50%,
+      rgba(201,168,76,0.4) 80%,
+      transparent);
+  }
+
+  .title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-family: 'Cinzel', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: #1a1208;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .badge {
+    background: linear-gradient(180deg, #f5e8a8 0%, #d4b85a 100%);
+    color: #3d2b08;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    border: 1px solid #b8983a;
+    text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
+  .flavor {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #2a1f14;
+    font-style: italic;
+    margin-bottom: 12px;
+    text-align: justify;
+  }
+
+  .traits {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #2a1f14;
+  }
+
+  .traits p {
+    margin-bottom: 6px;
+  }
+
+  .traits strong {
+    color: #1a1208;
+    font-weight: 700;
+    font-family: 'Cinzel', serif;
+    font-size: 11.5px;
+    letter-spacing: 0.3px;
+  }
+
+  .traits .cost {
+    color: #6a5a4a;
+    font-style: italic;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: linear-gradient(180deg, #1a1814 0%, #110f1c 100%);
+    padding: 7px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #2a2520;
+  }
+
+  .footer-artist {
+    font-size: 10px;
+    color: #8a7a6a;
+    font-style: italic;
+  }
+
+  .footer-system {
+    font-size: 9px;
+    color: #6a5a4a;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Temple Image Area -->
+  <div class="temple-area">
+    <div class="temple-sky"></div>
+    <div class="temple-dome"></div>
+    <div class="temple-dome-inner"></div>
+    <div class="temple-sun"></div>
+    <div class="obelisk"></div>
+    <div class="obelisk"></div>
+    <div class="obelisk"></div>
+    <div class="obelisk"></div>
+    <div class="obelisk"></div>
+    <div class="temple-water"></div>
+    <div class="palm-1">
+      <div class="palm-trunk"></div>
+      <div class="palm-leaves"></div>
+    </div>
+    <div class="palm-2">
+      <div class="palm-trunk"></div>
+      <div class="palm-leaves"></div>
+    </div>
+    <div class="moon"></div>
+  </div>
+
+  <!-- Golden Separator -->
+  <div class="separator-gold"></div>
+  <div class="separator-dark"></div>
+
+  <!-- Content Area -->
+  <div class="content">
+    <div class="title-row">
+      <h2 class="title">Acólito</h2>
+      <span class="badge">Background</span>
+    </div>
+
+    <p class="flavor">
+      Você se dedicou ao serviço em um templo, localizado em uma aldeia ou em um bosque sagrado, onde realizava ritos em homenagem a um deus ou panteão. Sob a orientação de um sacerdote, estudou religião e, graças à sua devoção, aprendeu a canalizar um pouco do poder divino para o seu local de culto e para as pessoas que ali oravam.
+    </p>
+
+    <div class="traits">
+      <p><strong>Valores de Atributo:</strong> Inteligência, Sabedoria, Carisma</p>
+      <p><strong>Talento:</strong> Iniciado em Magia (Clérigo) <span class="cost">(veja o capítulo 5)</span></p>
+      <p><strong>Proficiências em Perícias:</strong> Intuição, Religião</p>
+      <p><strong>Proficiência com Ferramentas:</strong> Suprimentos de Calígrafo</p>
+      <p><strong>Equipamento:</strong> Escolha A ou B: (A) Suprimentos de Calígrafo, Livro (orações), Símbolo Sagrado, Pergaminho (10 folhas), Túnica, <span class="cost">8 PO</span>; ou (B) <span class="cost">50 PO</span></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-artist">Titus Lunter</span>
+    <span class="footer-system">D&D 5e Compatible</span>
+  </div>
+
+</div>
+
+</body>
+</html>

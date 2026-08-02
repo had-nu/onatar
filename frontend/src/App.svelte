@@ -3,7 +3,11 @@
   import Shell from './lib/Shell.svelte'
   import { initRouter, route } from './lib/router.svelte'
   import { initTheme } from './lib/theme.svelte'
+  import { checkAuth } from './lib/auth.svelte'
+  import { loadFromApi as loadCharacters, migrateLocalToApi as migrateCharacters } from './lib/characters.svelte'
+  import { loadFromApi as loadCampaigns, migrateLocalToApi as migrateCampaigns } from './lib/campaigns.svelte'
   import Landing from './lib/views/Landing.svelte'
+  import Login from './lib/views/Login.svelte'
   import Characters from './lib/views/Characters.svelte'
   import CharacterView from './lib/views/CharacterView.svelte'
   import Content from './lib/views/Content.svelte'
@@ -12,15 +16,28 @@
   import Import from './lib/views/Import.svelte'
   import Combat from './lib/views/Combat.svelte'
 
-  onMount(() => {
+  onMount(async () => {
     initTheme()
-    return initRouter()
+    const cleanupRouter = initRouter()
+
+    const user = await checkAuth()
+    if (user) {
+      // Authenticated: load from API and migrate any local data
+      await Promise.all([loadCharacters(), loadCampaigns()])
+      await Promise.all([migrateCharacters(), migrateCampaigns()])
+    } else {
+      // Guest: data already loaded from localStorage via box initialization
+    }
+
+    return cleanupRouter
   })
 </script>
 
 <Shell>
   {#if route.name === 'home'}
     <Landing />
+  {:else if route.name === 'login'}
+    <Login />
   {:else if route.name === 'characters'}
     <Characters />
   {:else if route.name === 'character'}

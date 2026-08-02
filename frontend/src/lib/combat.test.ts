@@ -91,8 +91,8 @@ describe('combat store', () => {
     expect(getSession(s.id)!.combatants[0].conditions).toEqual([])
   })
 
-  it('links a character and syncs HP back to its live sheet', () => {
-    const c = createCharacter(draft)
+  it('links a character and syncs HP back to its live sheet', async () => {
+    const c = await createCharacter(draft)
     const s = seedSession()
     addCharacterToCombat(s.id, c.id)
     const linked = getSession(s.id)!.combatants.find((x) => x.characterId === c.id)!

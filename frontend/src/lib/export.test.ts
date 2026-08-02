@@ -9,8 +9,8 @@ beforeEach(() => {
 })
 
 describe('JSON export', () => {
-  it('round-trips a character through toJSON/parseJSON', () => {
-    const c = createCharacter(starterDraft())
+  it('round-trips a character through toJSON/parseJSON', async () => {
+    const c = await createCharacter(starterDraft())
     const parsed = parseCharacterJSON(characterToJSON(c))
     expect(parsed).not.toBeNull()
     expect(parsed!.id).toBe(c.id)

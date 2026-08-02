@@ -12,6 +12,8 @@ func TestLoadDefaults(t *testing.T) {
 	t.Setenv("DB_USER", "")
 	t.Setenv("HTTP_ADDR", "")
 	t.Setenv("DB_PASS", "secret")
+	t.Setenv("GITHUB_CLIENT_ID", "test")
+	t.Setenv("GITHUB_CLIENT_SECRET", "test")
 
 	c, err := Load()
 	if err != nil {
