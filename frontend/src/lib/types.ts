@@ -10,6 +10,7 @@ export interface User {
   avatar_url: string | null
   email: string | null
 }
+
 export const ABILITIES: Ability[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
 export interface Content {
@@ -146,18 +147,18 @@ export function emptyLive(sheet: Sheet | undefined): SheetLive {
 }
 
 export const CONDITIONS = [
-  'cego',
-  'encantado',
-  'surdo',
-  'exausto',
-  'amedrontado',
-  'agarrado',
-  'indefeso',
-  'envenenado',
-  'prostrado',
-  'derrubado',
-  'estonteado',
-  'inconsciente',
+  'blinded',
+  'charmed',
+  'deafened',
+  'exhaustion',
+  'frightened',
+  'grappled',
+  'incapacitated',
+  'poisoned',
+  'prone',
+  'restrained',
+  'stunned',
+  'unconscious',
 ] as const
 
 export interface Character {
@@ -176,4 +177,148 @@ export interface Character {
 export function dataString(data: Record<string, unknown> | undefined, key: string): string {
   const v = data?.[key]
   return typeof v === 'string' ? v : ''
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * New Arcanum Builder Types (from zip) — for offline mock data
+ * and richer CharacterSheet with savingThrows, spellSlots, features[]
+ * ────────────────────────────────────────────────────────────── */
+
+export interface AbilityScores {
+  STR: number
+  DEX: number
+  CON: number
+  INT: number
+  WIS: number
+  CHA: number
+}
+
+export interface ClassEntry {
+  id: string
+  name: string
+  hitDie: number
+  spellcaster: boolean
+  primaryAbility: string[]
+  savingThrows: string[]
+  subclassLevel?: number
+  subClasses?: SubClassEntry[]
+  features?: ClassFeature[]
+  spellcasting?: SpellcastingEntry | null
+  skillChoices?: { count: number; from: string[] }
+}
+
+export interface SubClassEntry {
+  id: string
+  name: string
+  description: string
+}
+
+export interface ClassFeature {
+  name: string
+  level: number
+  description: string
+}
+
+export interface SpellcastingEntry {
+  ability: string
+  preparedSpells: number[]
+  knownSpells: boolean
+  slots: Record<string, number[]>
+}
+
+export interface SpeciesEntry {
+  id: string
+  name: string
+  description: string
+  traits: TraitEntry[]
+  abilityBonuses: Partial<AbilityScores>
+  size: string
+  speed: number
+  languages: string[]
+  variants: SpeciesVariant[]
+}
+
+export interface SpeciesVariant {
+  id: string
+  name: string
+  description: string
+}
+
+export interface TraitEntry {
+  name: string
+  description: string
+}
+
+export interface BackgroundEntry {
+  id: string
+  name: string
+  description: string
+  skillProficiencies: string[]
+  toolProficiencies: string[]
+  languages: number[]
+  equipment: string[]
+  feature: { name: string; description: string }
+}
+
+export interface SpellEntry {
+  id: string
+  name: string
+  level: number
+  school: string
+  description: string
+}
+
+export interface BuildRequestNew {
+  name: string
+  classes: ClassReq[]
+  backgroundId: string
+  speciesId: string
+  speciesVariant?: string
+  level: number
+  abilityScores: AbilityScores
+  abilityMethod: 'standard' | 'point-buy' | 'roll'
+  skills: string[]
+  spells: string[]
+  feats: string[]
+}
+
+export interface ClassReq {
+  id: string
+  level: number
+  subclassId?: string
+}
+
+export interface BuildResponseNew {
+  valid: boolean
+  errors?: string[]
+  sheet?: CharacterSheet
+}
+
+export interface CharacterSheet {
+  name: string
+  level: number
+  hp: { max: number; current?: number }
+  ac: number
+  proficiencyBonus: number
+  abilities: AbilityScores
+  savingThrows: Record<string, { proficient: boolean; modifier: number }>
+  skills: Record<string, { proficient: boolean; modifier: number }>
+  features: string[]
+  spells?: string[]
+  spellSlots?: Record<string, number>
+}
+
+export interface ChoicePoint {
+  type: 'subclass' | 'spell' | 'ability-improvement' | 'skill'
+  classId?: string
+  level: number
+  name: string
+  description: string
+  options: Array<{ id: string; name: string; description: string }>
+}
+
+export interface BuilderSnapshot {
+  draft: BuildRequestNew
+  step: number
+  timestamp: number
 }

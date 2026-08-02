@@ -45,6 +45,24 @@
   --danger-border: rgba(184, 0, 0, 0.4);
   --shadow: rgba(61, 50, 41, 0.15) 0 10px 15px -3px, rgba(61, 50, 41, 0.08) 0 4px 6px -2px;
 
+  /* Arcanum theme variables (mapped to existing Onatar vars) */
+  --on-bg-root: var(--bg);
+  --on-bg-surface: var(--bg-card);
+  --on-bg-elevated: #1a1a24;
+  --on-bg-hover: #24243d;
+  --on-border: #2a1f1f;
+  --on-border-light: #3d2a2a;
+  --on-red: var(--accent);
+  --on-red-hover: #a00008;
+  --on-red-glow: rgba(197, 0, 9, 0.15);
+  --on-gold: var(--gold);
+  --on-gold-dim: #a8882e;
+  --on-green: #00b87a;
+  --on-blue: #5b8def;
+  --on-text: var(--text);
+  --on-text-muted: var(--text-2);
+  --on-text-dim: var(--text-3);
+
   font: 18px/145% var(--font-body);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -82,6 +100,24 @@
     --danger-bg: rgba(212, 68, 68, 0.12);
     --danger-border: rgba(212, 68, 68, 0.5);
     --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    /* Arcanum dark mode mappings */
+    --on-bg-root: var(--bg);
+    --on-bg-surface: var(--bg-card);
+    --on-bg-elevated: #1a1a24;
+    --on-bg-hover: #24243d;
+    --on-border: #2a1f1f;
+    --on-border-light: #3d2a2a;
+    --on-red: var(--accent);
+    --on-red-hover: #a00008;
+    --on-red-glow: rgba(197, 0, 9, 0.15);
+    --on-gold: var(--gold);
+    --on-gold-dim: #a8882e;
+    --on-green: #00b87a;
+    --on-blue: #5b8def;
+    --on-text: var(--text);
+    --on-text-muted: var(--text-2);
+    --on-text-dim: var(--text-3);
   }
 }
 
@@ -106,6 +142,24 @@
   --danger-bg: rgba(184, 0, 0, 0.08);
   --danger-border: rgba(184, 0, 0, 0.4);
   --shadow: rgba(61, 50, 41, 0.15) 0 10px 15px -3px, rgba(61, 50, 41, 0.08) 0 4px 6px -2px;
+
+  /* Arcanum light mode mappings */
+  --on-bg-root: var(--bg);
+  --on-bg-surface: var(--bg-card);
+  --on-bg-elevated: #1a1a24;
+  --on-bg-hover: #24243d;
+  --on-border: #2a1f1f;
+  --on-border-light: #3d2a2a;
+  --on-red: var(--accent);
+  --on-red-hover: #a00008;
+  --on-red-glow: rgba(197, 0, 9, 0.15);
+  --on-gold: var(--gold);
+  --on-gold-dim: #a8882e;
+  --on-green: #00b87a;
+  --on-blue: #5b8def;
+  --on-text: var(--text);
+  --on-text-muted: var(--text-2);
+  --on-text-dim: var(--text-3);
 }
 
 :root[data-theme='dark'] {
@@ -129,6 +183,24 @@
   --danger-bg: rgba(212, 68, 68, 0.12);
   --danger-border: rgba(212, 68, 68, 0.5);
   --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+  /* Arcanum dark mode mappings */
+  --on-bg-root: var(--bg);
+  --on-bg-surface: var(--bg-card);
+  --on-bg-elevated: #1a1a24;
+  --on-bg-hover: #24243d;
+  --on-border: #2a1f1f;
+  --on-border-light: #3d2a2a;
+  --on-red: var(--accent);
+  --on-red-hover: #a00008;
+  --on-red-glow: rgba(197, 0, 9, 0.15);
+  --on-gold: var(--gold);
+  --on-gold-dim: #a8882e;
+  --on-green: #00b87a;
+  --on-blue: #5b8def;
+  --on-text: var(--text);
+  --on-text-muted: var(--text-2);
+  --on-text-dim: var(--text-3);
 }
 
 body {
