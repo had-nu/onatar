@@ -45,6 +45,8 @@
         onclick={() => selectClass(cls.id)}
         class="class-card"
         on:click={() => openClassPopup(cls)}
+        id="class-card"
+        data-class-id={cls.id}
       >
         <div class="cc-header">
           <span class="cc-name">{cls.name}</span>

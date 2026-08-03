@@ -34,9 +34,9 @@
 
   <!-- Name input -->
   <div class="name-section">
-    <label for="char-name">Character Name</label>
+    <label for="char-name-input">Character Name</label>
     <input
-      id="char-name"
+      id="char-name-input"
       type="text"
       value={draft.name}
       oninput={(e) => setName(e.currentTarget.value)}
@@ -142,8 +142,8 @@
       <div class="success-msg">✓ Character saved successfully!</div>
       <Button variant="secondary" onclick={() => { resetBuilder(); setStep(0); }}>Create New Character</Button>
     {:else}
-      <Button variant="outline" onclick={() => setStep(0)}>Restart</Button>
-      <Button variant="primary" onclick={handleSave} disabled={saving || pendingChoices.length > 0 || !draft.name}>
+      <Button variant="outline" onclick={() => setStep(0)} id="restart-btn">Restart</Button>
+      <Button variant="primary" onclick={handleSave} disabled={saving || pendingChoices.length > 0 || !draft.name} id="forge-btn">
         {saving ? 'Saving...' : '⚔ Forge Character'}
       </Button>
     {/if}

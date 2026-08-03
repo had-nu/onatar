@@ -85,16 +85,14 @@
           </div>
 
           {#if step < 5}
-            <button
-              type="button"
-              class="on-btn on-btn--primary on-btn--md"
-              class:on-btn--disabled={!getCurrentStepValid()}
-              disabled={!getCurrentStepValid()}
+            <Button
+              variant="primary"
               onclick={nextStep}
+              disabled={!getCurrentStepValid()}
               data-testid="next-btn"
             >
               Next →
-            </button>
+            </Button>
           {/if}
         </div>
       </main>

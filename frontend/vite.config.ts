@@ -13,9 +13,12 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
     proxy: {
       // PRD §6 C2: SPA talks to Go API via /api
-      '/api': 'http://localhost:8090',
+      '/api': 'http://127.0.0.1:8090',
     },
   },
   test: {

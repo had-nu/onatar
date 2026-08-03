@@ -4,8 +4,10 @@
     children?: import('svelte').Snippet;
     onclick?: () => void;
     class?: string;
+    id?: string;
+    'data-class-id'?: string;
   }
-  let { variant = 'default', children, onclick, class: className = '' }: Props = $props();
+  let { variant = 'default', children, onclick, class: className = '', id, 'data-class-id': classId }: Props = $props();
 
   const isClickable = !!onclick;
 </script>
@@ -16,6 +18,8 @@
   role={isClickable ? 'button' : undefined}
   tabindex={isClickable ? 0 : undefined}
   onclick={isClickable ? onclick : undefined}
+  id={id}
+  data-class-id={classId}
 >
   {@render children?.()}
 </div>
