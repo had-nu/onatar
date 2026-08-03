@@ -7,9 +7,6 @@ import (
 	"github.com/hadnu/onatar/internal/build"
 )
 
-// maxBodyBytes bounds the /build request size.
-const maxBodyBytes = 1 << 20 // 1 MiB
-
 // validateBuildRequest validates the build request.
 func validateBuildRequest(req BuildRequest) error {
 	if req.Name == "" {

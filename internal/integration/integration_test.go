@@ -62,7 +62,7 @@ func doJSON(t *testing.T, method, url string, body any) (int, map[string]any) {
 	if err != nil {
 		t.Fatalf("do request: %v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var out map[string]any
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {

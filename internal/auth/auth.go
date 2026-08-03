@@ -102,7 +102,7 @@ func (s *AuthService) ExchangeCode(ctx context.Context, code string) (*User, err
 	if err != nil {
 		return nil, fmt.Errorf("fetch github user: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("github user api returned %d", resp.StatusCode)
@@ -123,7 +123,7 @@ func (s *AuthService) ExchangeCode(ctx context.Context, code string) (*User, err
 	if ghUser.Email == "" {
 		emailsResp, err := client.Get("https://api.github.com/user/emails")
 		if err == nil {
-			defer emailsResp.Body.Close()
+			defer func() { _ = emailsResp.Body.Close() }()
 			var emails []struct {
 				Email    string `json:"email"`
 				Primary  bool   `json:"primary"`
