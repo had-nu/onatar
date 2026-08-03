@@ -5,6 +5,9 @@
     const mod = Math.floor((score - 10) / 2);
     return mod >= 0 ? `+${mod}` : `${mod}`;
   }
+  
+  // Safe accessors
+  const hasPreview = preview && preview.hp && preview.ac !== undefined;
 </script>
 
 <aside class="preview-sidebar">
@@ -14,7 +17,7 @@
   </div>
 
   <div class="ps-body">
-    {#if !preview}
+    {#if !hasPreview}
       <div class="ps-empty">
         {#if isLoading}
           <div class="ps-spinner"></div>

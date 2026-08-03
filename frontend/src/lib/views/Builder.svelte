@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { step, nextStep, prevStep, getCurrentStepValid, undo, getCanUndo, redo, getCanRedo } from '$lib/builder.svelte';
+  import { onMount } from 'svelte';
+  import { step, nextStep, prevStep, getCurrentStepValid, undo, getCanUndo, redo, getCanRedo, classes } from '$lib/builder.svelte';
   import StepsBar from '$lib/components/StepsBar.svelte';
   import PreviewSidebar from '$lib/components/PreviewSidebar.svelte';
   import ClassStep from '$lib/builder-steps/ClassStep.svelte';
@@ -10,63 +11,119 @@
   import ReviewStep from '$lib/builder-steps/ReviewStep.svelte';
   import Button from '$lib/ui/Button.svelte';
 
-  const steps = [
-    { label: 'Classe', component: ClassStep },
-    { label: 'Background', component: BackgroundStep },
-    { label: 'Espécie', component: SpeciesStep },
-    { label: 'Atributos', component: AbilitiesStep },
-    { label: 'Equipamento', component: EquipmentStep },
-    { label: 'Revisão', component: ReviewStep },
+  const stepComponents = [
+    ClassStep,
+    BackgroundStep,
+    SpeciesStep,
+    AbilitiesStep,
+    EquipmentStep,
+    ReviewStep,
   ];
 
-  const StepComponent = $derived(steps[step.value].component);
+  let StepComponent = stepComponents[step.value];
+
+  $effect(() => {
+    StepComponent = stepComponents[step.value];
+  });
+
+  const steps = [
+    { label: 'Class', component: ClassStep },
+    { label: 'Background', component: BackgroundStep },
+    { label: 'Species', component: SpeciesStep },
+    { label: 'Abilities', component: AbilitiesStep },
+    { label: 'Equipment', component: EquipmentStep },
+    { label: 'Review', component: ReviewStep },
+  ];
+
+  // Expose step info for debugging (runs on client side)
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__builder_step_value = step.value;
+      (window as any).__builder_step_component = 'ClassStep'; // Default step is 0 = ClassStep
+      // Update when step changes
+      const updateDebug = () => {
+        (window as any).__builder_step_value = step.value;
+        const stepNames = ['ClassStep', 'BackgroundStep', 'SpeciesStep', 'AbilitiesStep', 'EquipmentStep', 'ReviewStep'];
+        (window as any).__builder_step_component = stepNames[step.value] || 'unknown';
+      };
+      $effect(() => {
+        updateDebug();
+      });
+    }
+  });
 </script>
 
 <div class="builder-page">
-  <StepsBar {steps} />
+  {#if classes.value.length === 0}
+    <div class="builder-loading">
+      <div class="spinner"></div>
+      <p>Loading content…</p>
+    </div>
+  {:else}
+    <StepsBar {steps} />
 
-  <div class="builder-layout">
-    <main class="builder-content">
-      <StepComponent />
+    <div class="builder-layout">
+      <main class="builder-content">
+        <svelte:component this={StepComponent} />
 
-      <div class="builder-nav">
-        <Button
-          variant="ghost"
-          onclick={prevStep}
-          disabled={step === 0}
-        >
-          ← Anterior
-        </Button>
+        <div class="builder-nav">
+          <Button
+            variant="ghost"
+            onclick={prevStep}
+            disabled={step === 0}
+          >
+            ← Previous
+          </Button>
 
-        <div class="builder-nav-meta">
-          {#if getCanUndo()}
-            <button class="nav-undo" onclick={undo} title="Desfazer">↩</button>
-          {/if}
-          {#if getCanRedo()}
-            <button class="nav-redo" onclick={redo} title="Refazer">↪</button>
+          <div class="builder-nav-meta">
+            {#if getCanUndo()}
+              <button class="nav-undo" onclick={undo} title="Undo">↩</button>
+            {/if}
+            {#if getCanRedo()}
+              <button class="nav-redo" onclick={redo} title="Redo">↪</button>
+            {/if}
+          </div>
+
+          {#if step < 5}
+            <Button
+              variant="primary"
+              onclick={nextStep}
+              disabled={!getCurrentStepValid()}
+            >
+              Next →
+            </Button>
           {/if}
         </div>
+      </main>
 
-        {#if step < 5}
-          <Button
-            variant="primary"
-            onclick={nextStep}
-            disabled={!getCurrentStepValid()}
-          >
-            Próximo →
-          </Button>
-        {/if}
-      </div>
-    </main>
-
-    <PreviewSidebar />
-  </div>
+      <PreviewSidebar />
+    </div>
+  {/if}
 </div>
 
 <style>
   .builder-page {
     min-height: 100vh;
     background: var(--on-bg-root);
+  }
+  .builder-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 1rem;
+  }
+  .spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
   .builder-layout {
     display: grid;

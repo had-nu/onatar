@@ -2,22 +2,49 @@
   import { draft, classes, selectClass, setSubclass, getClassDef } from '$lib/builder.svelte';
   import Card from '$lib/ui/Card.svelte';
   import Tag from '$lib/ui/Tag.svelte';
+  import InfoPopup from '$lib/components/InfoPopup.svelte';
+  import type { ClassEntry, SubClassEntry } from '$lib/types';
 
-  const selectedClassId = $derived(draft.classes[0]?.id);
-  const selectedSubclassId = $derived(draft.classes[0]?.subclassId);
+  const selectedClassId = $derived(draft.value?.classes?.[0]?.id);
+  const selectedSubclassId = $derived(draft.value?.classes?.[0]?.subclassId);
   const classDef = $derived(getClassDef());
+
+  // Popup state
+  let popupOpen = $state(false);
+  let popupType = $state<'class' | 'subclass'>('class');
+  let popupData = $state<any>(null);
+
+  console.log('ClassStep component mounting, classes.length:', classes.value.length);
+
+  function openClassPopup(cls: any) {
+    popupType = 'class';
+    popupData = cls;
+    popupOpen = true;
+  }
+
+  function openSubclassPopup(sc: any) {
+    popupType = 'subclass';
+    popupData = sc;
+    popupOpen = true;
+  }
+
+  function closePopup() {
+    popupOpen = false;
+    popupData = null;
+  }
 </script>
 
-<div class="step-class">
-  <h2 class="step-title">Choose Your Class</h2>
+<div class="step-class" data-testid="step-class">
+  <h2 class="step-title" data-testid="step-title">Choose Your Class</h2>
   <p class="step-desc">Your class defines your role in combat, your abilities, and your playstyle.</p>
 
   <div class="class-grid">
-    {#each classes as cls}
+    {#each classes.value as cls}
       <Card
         variant={selectedClassId === cls.id ? 'selected' : 'interactive'}
         onclick={() => selectClass(cls.id)}
         class="class-card"
+        on:click={() => openClassPopup(cls)}
       >
         <div class="cc-header">
           <span class="cc-name">{cls.name}</span>
@@ -52,6 +79,7 @@
             variant={selectedSubclassId === sc.id ? 'selected' : 'interactive'}
             onclick={() => setSubclass(selectedClassId, sc.id)}
             class="subclass-card"
+            on:click={() => openSubclassPopup(sc)}
           >
             <div class="sc-name">{sc.name}</div>
             <p class="sc-desc">{sc.description}</p>
@@ -59,6 +87,15 @@
         {/each}
       </div>
     </div>
+  {/if}
+
+  {#if popupOpen}
+    <InfoPopup
+      type={popupType}
+      data={popupData}
+      isOpen={popupOpen}
+      onClose={() => { popupOpen = false; popupData = null; }}
+    />
   {/if}
 </div>
 

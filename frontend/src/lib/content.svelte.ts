@@ -101,7 +101,10 @@ export async function loadContent(force = false): Promise<Content> {
   if (content.value && !force) return content.value
   contentError.value = ''
   try {
-    const res = await fetch('/api/v1/content')
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    const res = await fetch('/api/v1/content', { signal: controller.signal })
+    clearTimeout(timeoutId)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = (await res.json()) as Content
     content.value = data

@@ -2,6 +2,7 @@ import type {
   AbilityScores, BuildRequest, BuildResponse, CharacterSheet,
   ChoicePoint, BuilderSnapshot, ClassEntry, SpeciesEntry, BackgroundEntry, SpellEntry
 } from './types';
+import { mockClasses, mockSpecies, mockBackgrounds, mockSpells } from './mockData';
 import { box } from './box.svelte';
 import { loadContent } from './content.svelte';
 import { content } from './content.svelte';
@@ -29,6 +30,13 @@ export const preview = box<CharacterSheet | null>(null);
 export const pendingChoices = box<ChoicePoint[]>([]);
 export const isLoading = box(false);
 export const error = box<string | null>(null);
+export const contentLoading = box(true);
+
+// Expose step for debugging
+if (typeof window !== 'undefined') {
+  (window as any).__builder_step_value = step.value;
+  (window as any).__builder_step_component = 'ClassStep'; // Default step is 0 = ClassStep
+}
 
 // Undo / redo
 const MAX_HISTORY = 50;
@@ -41,10 +49,149 @@ export const species = box<SpeciesEntry[]>([]);
 export const backgrounds = box<BackgroundEntry[]>([]);
 export const spells = box<SpellEntry[]>([]);
 
-// Load content on initialization
+// Initialize with mock data immediately for instant UI
+function mapMockClass(c: typeof mockClasses[0]): ClassEntry {
+  return {
+    id: c.id,
+    name: c.name,
+    hitDie: c.hitDie,
+    spellcaster: c.spellcaster,
+    primaryAbility: c.primaryAbility,
+    savingThrows: c.savingThrows,
+    subclassLevel: c.subclassLevel,
+    subClasses: c.subClasses?.map(sc => ({
+      id: sc.id,
+      name: sc.name,
+      description: sc.description
+    })) || [],
+    features: c.features?.map(f => ({
+      name: f.name,
+      level: f.level,
+      description: f.description
+    })) || [],
+    spellcasting: c.spellcasting ? {
+      ability: c.spellcasting.ability,
+      preparedSpells: c.spellcasting.preparedSpells,
+      knownSpells: c.spellcasting.knownSpells,
+      slots: c.spellcasting.slots
+    } : null,
+    skillChoices: c.skillChoices || { count: 0, from: [] }
+  };
+}
+
+function mapMockSpecies(s: typeof mockSpecies[0]): SpeciesEntry {
+  return {
+    id: s.id,
+    name: s.name,
+    description: s.description,
+    traits: s.traits,
+    abilityBonuses: s.abilityBonuses,
+    size: s.size,
+    speed: s.speed,
+    languages: s.languages,
+    variants: s.variants
+  };
+}
+
+function mapMockBackground(b: typeof mockBackgrounds[0]): BackgroundEntry {
+  return {
+    id: b.id,
+    name: b.name,
+    description: b.description,
+    skillProficiencies: b.skillProficiencies,
+    toolProficiencies: b.toolProficiencies,
+    languages: b.languages,
+    equipment: b.equipment,
+    feature: b.feature
+  };
+}
+
+function mapMockSpell(s: typeof mockSpells[0]): SpellEntry {
+  return {
+    id: s.id,
+    name: s.name,
+    level: s.level,
+    school: s.school,
+    description: s.description
+  };
+}
+
+// Initialize with mock data immediately for instant UI
+console.log('DEBUG: mockClasses length:', mockClasses.length);
+
+classes.value = mockClasses.map(c => {
+  const c2 = c as typeof mockClasses[0];
+  return {
+    id: c2.id,
+    name: c2.name,
+    hitDie: c2.hitDie,
+    spellcaster: c2.spellcaster,
+    primaryAbility: c2.primaryAbility,
+    savingThrows: c2.savingThrows,
+    subclassLevel: c2.subclassLevel,
+    subClasses: c2.subClasses?.map(sc => ({
+      id: sc.id,
+      name: sc.name,
+      description: sc.description
+    })) || [],
+    features: c2.features?.map(f => ({
+      name: f.name,
+      level: f.level,
+      description: f.description
+    })) || [],
+    spellcasting: c2.spellcasting ? {
+      ability: c2.spellcasting.ability,
+      preparedSpells: c2.spellcasting.preparedSpells,
+      knownSpells: c2.spellcasting.knownSpells,
+      slots: c2.spellcasting.slots
+    } : null,
+    skillChoices: c2.skillChoices || { count: 0, from: [] }
+  };
+});
+// Expose for debugging
+if (typeof window !== 'undefined') {
+  (window as any).__builder_classes_length = classes.value.length;
+  (window as any).__builder_classes_data = classes.value;
+  (window as any).__builder_step_value = step.value;
+  (window as any).__builder_step_component = 'ClassStep'; // Default step is 0 = ClassStep
+}
+species.value = mockSpecies.map(s => ({
+  id: s.id,
+  name: s.name,
+  description: s.description,
+  traits: s.traits,
+  abilityBonuses: s.abilityBonuses,
+  size: s.size,
+  speed: s.speed,
+  languages: s.languages,
+  variants: s.variants
+}));
+backgrounds.value = mockBackgrounds.map(b => ({
+  id: b.id,
+  name: b.name,
+  description: b.description,
+  skillProficiencies: b.skillProficiencies,
+  toolProficiencies: b.toolProficiencies,
+  languages: b.languages,
+  equipment: b.equipment,
+  feature: b.feature
+}));
+spells.value = mockSpells.map(s => ({
+  id: s.id,
+  name: s.name,
+  level: s.level,
+  school: s.school,
+  description: s.description
+}));
+
+// Load content on initialization (async, updates cache)
 async function initializeContent() {
-  try {
-    const data = await loadContent();
+try {
+    // Add a timeout to prevent hanging
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Content loading timeout')), 8000);
+    });
+    const data = await Promise.race([loadContent(), timeoutPromise]);
     classes.value = data.classes.map(c => ({
       id: c.id,
       name: c.name,
@@ -104,7 +251,66 @@ async function initializeContent() {
     }));
   } catch (err) {
     console.warn('Failed to load content, using mock data:', err);
-    // Fallback to mock data is already set as initial values
+    // Fallback to mock data
+    classes.value = mockClasses.map(c => ({
+      id: c.id,
+      name: c.name,
+      hitDie: c.hitDie,
+      spellcaster: c.spellcaster,
+      primaryAbility: c.primaryAbility,
+      savingThrows: c.savingThrows,
+      subclassLevel: c.subclassLevel,
+      subClasses: c.subClasses?.map(sc => ({
+        id: sc.id,
+        name: sc.name,
+        description: sc.description
+      })) || [],
+      features: c.features?.map(f => ({
+        name: f.name,
+        level: f.level,
+        description: f.description
+      })) || [],
+      spellcasting: c.spellcasting ? {
+        ability: c.spellcasting.ability,
+        preparedSpells: c.spellcasting.preparedSpells,
+        knownSpells: c.spellcasting.knownSpells,
+        slots: c.spellcasting.slots
+      } : null,
+      skillChoices: c.skillChoices || { count: 0, from: [] }
+    }));
+
+    species.value = mockSpecies.map(s => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      traits: s.traits,
+      abilityBonuses: s.abilityBonuses,
+      size: s.size,
+      speed: s.speed,
+      languages: s.languages,
+      variants: s.variants
+    }));
+
+    backgrounds.value = mockBackgrounds.map(b => ({
+      id: b.id,
+      name: b.name,
+      description: b.description,
+      skillProficiencies: b.skillProficiencies,
+      toolProficiencies: b.toolProficiencies,
+      languages: b.languages,
+      equipment: b.equipment,
+      feature: b.feature
+    }));
+
+    spells.value = mockSpells.map(s => ({
+      id: s.id,
+      name: s.name,
+      level: s.level,
+      school: s.school,
+      description: s.description
+    }));
+  } finally {
+    contentLoading.value = false;
   }
 }
 
@@ -168,6 +374,11 @@ export function setStep(s: number) {
   if (s > step.value && !getCurrentStepValid()) return; // block forward if invalid
   pushHistory();
   step.value = s;
+  if (typeof window !== 'undefined') {
+    (window as any).__builder_step_value = step.value;
+    const stepNames = ['ClassStep', 'BackgroundStep', 'SpeciesStep', 'AbilitiesStep', 'EquipmentStep', 'ReviewStep'];
+    (window as any).__builder_step_component = stepNames[step.value] || 'unknown';
+  }
 }
 
 export function nextStep() { setStep(step.value + 1); }
