@@ -29,30 +29,31 @@
 </script>
 
 <div class="step-review">
-  <h2 class="step-title">Final Review</h2>
-  <p class="step-desc">Verify all details before forging your character.</p>
+  <h2 class="step-title">Revisão Final</h2>
+  <p class="step-desc">Verifique todos os detalhes antes de forjar seu personagem.</p>
 
   <!-- Name input -->
   <div class="name-section">
-    <label for="char-name-input">Character Name</label>
+    <label for="char-name-input">Nome do Personagem</label>
     <input
       id="char-name-input"
       type="text"
       value={draft.name}
       oninput={(e) => setName(e.currentTarget.value)}
-      placeholder="e.g., Thorin Oakenshield"
+      placeholder="Ex: Thorin Escudo-de-Carvalho"
       class="name-input"
+      data-testid="char-name-input"
     />
   </div>
 
   <!-- Pending choices -->
   {#if pendingChoices.length > 0}
     <div class="pending-section">
-      <h3>Pending Choices</h3>
+      <h3>Escolhas Pendentes</h3>
       <div class="pending-list">
         {#each pendingChoices as choice}
           <Card variant="elevated" class="pending-card">
-            <div class="pc-type">{choice.type === 'subclass' ? 'Subclass' : choice.type === 'spell' ? 'Spell' : choice.type === 'skill' ? 'Skill' : 'Ability'}</div>
+            <div class="pc-type">{choice.type === 'subclass' ? 'Subclasse' : choice.type === 'spell' ? 'Feitiço' : choice.type === 'skill' ? 'Perícia' : 'Atributo'}</div>
             <div class="pc-name">{choice.name}</div>
             <p class="pc-desc">{choice.description}</p>
             {#if choice.options.length > 0}
@@ -80,13 +81,13 @@
   <!-- Summary cards -->
   <div class="review-grid">
     <Card variant="default" class="review-card">
-      <h4>Class</h4>
+      <h4>Classe</h4>
       <p class="review-value">{classDef?.name || '—'} {draft.classes[0]?.subclassId ? `(${classDef?.subClasses?.find(s => s.id === draft.classes[0].subclassId)?.name || ''})` : ''}</p>
-      <p class="review-meta">Level {totalLevel} · d{classDef?.hitDie || '—'}</p>
+      <p class="review-meta">Nível {totalLevel} · d{classDef?.hitDie || '—'}</p>
     </Card>
 
     <Card variant="default" class="review-card">
-      <h4>Species</h4>
+      <h4>Espécie</h4>
       <p class="review-value">{speciesDef?.name || '—'}</p>
       <p class="review-meta">{speciesDef?.size || '—'} · {speciesDef?.speed || '—'}ft</p>
     </Card>
@@ -98,7 +99,7 @@
     </Card>
 
     <Card variant="default" class="review-card">
-      <h4>Abilities</h4>
+      <h4>Atributos</h4>
       <div class="review-abilities">
         {#each Object.entries(draft.abilityScores) as [ab, score]}
           <div class="ra-item">
@@ -114,23 +115,23 @@
   <!-- Preview stats -->
   {#if preview}
     <div class="preview-section">
-      <h3>Sheet Preview</h3>
+      <h3>Prévia da Ficha</h3>
       <div class="preview-stats-row">
         <div class="ps-item">
           <span class="ps-value">{preview.hp.max}</span>
-          <span class="ps-label">Max HP</span>
+          <span class="ps-label">PV Máximo</span>
         </div>
         <div class="ps-item">
           <span class="ps-value">{preview.ac}</span>
-          <span class="ps-label">AC</span>
+          <span class="ps-label">CA</span>
         </div>
         <div class="ps-item">
           <span class="ps-value">+{preview.proficiencyBonus}</span>
-          <span class="ps-label">Proficiency</span>
+          <span class="ps-label">Proficiência</span>
         </div>
         <div class="ps-item">
           <span class="ps-value">{preview.features.length}</span>
-          <span class="ps-label">Features</span>
+          <span class="ps-label">Características</span>
         </div>
       </div>
     </div>
@@ -139,12 +140,12 @@
   <!-- Actions -->
   <div class="review-actions">
     {#if saveSuccess}
-      <div class="success-msg">✓ Character saved successfully!</div>
-      <Button variant="secondary" onclick={() => { resetBuilder(); setStep(0); }}>Create New Character</Button>
+      <div class="success-msg">✓ Personagem salvo com sucesso!</div>
+      <Button variant="secondary" onclick={() => { resetBuilder(); setStep(0); }}>Criar Novo Personagem</Button>
     {:else}
-      <Button variant="outline" onclick={() => setStep(0)} id="restart-btn">Restart</Button>
+      <Button variant="outline" onclick={() => setStep(0)} id="restart-btn">Recomeçar</Button>
       <Button variant="primary" onclick={handleSave} disabled={saving || pendingChoices.length > 0 || !draft.name} id="forge-btn">
-        {saving ? 'Saving...' : '⚔ Forge Character'}
+        {saving ? 'Salvando...' : '⚔ Forjar Personagem'}
       </Button>
     {/if}
   </div>

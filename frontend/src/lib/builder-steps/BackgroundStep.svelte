@@ -8,8 +8,8 @@
 </script>
 
 <div class="step-bg">
-  <h2 class="step-title">Choose Your Background</h2>
-  <p class="step-desc">Your background defines your history, proficiencies, and starting equipment.</p>
+  <h2 class="step-title">Escolha Seu Background</h2>
+  <p class="step-desc">Seu background define sua história, proficiências e equipamento inicial.</p>
 
   <div class="bg-grid">
     {#each backgrounds as bg}

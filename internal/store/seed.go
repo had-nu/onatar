@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/hadnu/onatar/internal/content"
 )
@@ -36,6 +37,9 @@ func Seed(ctx context.Context, db *sql.DB, c *content.Content) error {
 		return err
 	}
 	if err := seedFeatures(ctx, tx, c.Features); err != nil {
+		return err
+	}
+	if err := seedItems(ctx, tx, c.Items); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -172,6 +176,27 @@ func seedFeatures(ctx context.Context, tx execer, items []content.Feature) error
 				level=VALUES(level), data=VALUES(data)`,
 			it.ID, nullIfEmpty(it.ClassID), nullIfEmpty(it.SubclassID), it.Name, it.Level, data)
 		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func seedItems(ctx context.Context, tx execer, items []content.Item) error {
+	for _, it := range items {
+		data, err := it.JSONData()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("SEED ITEM: id=%s name=%s\n", it.ID, it.Name)
+		_, err = tx.ExecContext(ctx, `
+			INSERT INTO items (id, name, type, rarity, source, edition, data)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+			ON DUPLICATE KEY UPDATE name=VALUES(name), type=VALUES(type),
+				rarity=VALUES(rarity), source=VALUES(source), edition=VALUES(edition), data=VALUES(data)`,
+			it.ID, it.Name, it.Type, it.Rarity, it.Source, it.Edition, data)
+		if err != nil {
+			fmt.Printf("SEED ITEM ERROR: id=%s err=%v\n", it.ID, err)
 			return err
 		}
 	}

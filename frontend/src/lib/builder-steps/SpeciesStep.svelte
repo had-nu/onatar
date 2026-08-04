@@ -9,8 +9,8 @@
 </script>
 
 <div class="step-species">
-  <h2 class="step-title">Choose Your Species</h2>
-  <p class="step-desc">Your species defines your heritage, racial traits, and ability bonuses.</p>
+  <h2 class="step-title">Escolha Sua Espécie</h2>
+  <p class="step-desc">Sua espécie define sua herança, traços raciais e bônus de habilidade.</p>
 
   <div class="species-grid">
     {#each species as sp}

@@ -18,6 +18,7 @@ type Content struct {
 	Spells      []Spell     `json:"spells"`
 	Feats       []Feat      `json:"feats"`
 	Features    []Feature   `json:"features"`
+	Items       []Item      `json:"items"`
 }
 
 // Class is the normalized form of data/classes/<id>.yaml (PRD §8.1).
@@ -80,6 +81,16 @@ type Feature struct {
 	Data       map[string]any `yaml:"data" json:"data"`
 }
 
+type Item struct {
+	ID       string         `yaml:"id" json:"id"`
+	Name     string         `yaml:"name" json:"name"`
+	Type     string         `yaml:"type" json:"type"`
+	Rarity   string         `yaml:"rarity" json:"rarity"`
+	Source   string         `yaml:"source" json:"source"`
+	Edition  string         `yaml:"edition" json:"edition"`
+	Data     map[string]any `yaml:"data" json:"data"`
+}
+
 // JSONData serializes the flexible payload for the `data JSON` column,
 // merging suggestion fields per PRD §8.1.
 func (c Class) JSONData() ([]byte, error) {
@@ -127,6 +138,8 @@ func (s Spell) JSONData() ([]byte, error)      { return json.Marshal(s.Data) }
 func (f Feat) JSONData() ([]byte, error) { return json.Marshal(f.Data) }
 
 func (f Feature) JSONData() ([]byte, error) { return json.Marshal(f.Data) }
+
+func (i Item) JSONData() ([]byte, error) { return json.Marshal(i.Data) }
 
 // LoadData reads the data/ directory tree and parses all content files.
 func LoadData(root string) (*Content, error) {

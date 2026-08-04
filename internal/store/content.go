@@ -37,6 +37,9 @@ func Content(ctx context.Context, db *sql.DB) (*content.Content, error) {
 	if out.Features, err = queryFeatures(ctx, db); err != nil {
 		return nil, fmt.Errorf("features: %w", err)
 	}
+	if out.Items, err = queryItems(ctx, db); err != nil {
+		return nil, fmt.Errorf("items: %w", err)
+	}
 	return out, nil
 }
 
@@ -238,6 +241,33 @@ func queryFeatures(ctx context.Context, db *sql.DB) ([]content.Feature, error) {
 			return nil, fmt.Errorf("%s: %w", f.ID, err)
 		}
 		out = append(out, f)
+	}
+	return out, rows.Err()
+}
+
+func queryItems(ctx context.Context, db *sql.DB) ([]content.Item, error) {
+	rows, err := db.QueryContext(ctx, `
+		SELECT id, name, type, COALESCE(rarity,''), source, edition, data
+		FROM items ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+
+	var out []content.Item
+	for rows.Next() {
+		var (
+			i       content.Item
+			dataRaw []byte
+		)
+		if err := rows.Scan(&i.ID, &i.Name, &i.Type, &i.Rarity, &i.Source, &i.Edition, &dataRaw); err != nil {
+			return nil, err
+		}
+		i.Data = map[string]any{}
+		if err := json.Unmarshal(dataRaw, &i.Data); err != nil {
+			return nil, fmt.Errorf("%s: %w", i.ID, err)
+		}
+		out = append(out, i)
 	}
 	return out, rows.Err()
 }

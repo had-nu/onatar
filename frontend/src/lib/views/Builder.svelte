@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { step, nextStep, prevStep, getCurrentStepValid, undo, getCanUndo, redo, getCanRedo, classes } from '$lib/builder.svelte';
+  import { step, nextStep, prevStep, undo, getCanUndo, redo, getCanRedo, classes, currentStepValid } from '$lib/builder.svelte';
   import StepsBar from '$lib/components/StepsBar.svelte';
   import PreviewSidebar from '$lib/components/PreviewSidebar.svelte';
   import ClassStep from '$lib/builder-steps/ClassStep.svelte';
@@ -9,7 +8,6 @@
   import AbilitiesStep from '$lib/builder-steps/AbilitiesStep.svelte';
   import EquipmentStep from '$lib/builder-steps/EquipmentStep.svelte';
   import ReviewStep from '$lib/builder-steps/ReviewStep.svelte';
-  import Button from '$lib/ui/Button.svelte';
 
   const stepComponents = [
     ClassStep,
@@ -20,12 +18,6 @@
     ReviewStep,
   ];
 
-  let StepComponent = stepComponents[step.value];
-
-  $effect(() => {
-    StepComponent = stepComponents[step.value];
-  });
-
   const steps = [
     { label: 'Classe', component: ClassStep },
     { label: 'Background', component: BackgroundStep },
@@ -35,22 +27,17 @@
     { label: 'Revisão', component: ReviewStep },
   ];
 
+  // Use $derived for reactive step component
+  const StepComponent = $derived(stepComponents[step.value]);
+
   // Expose step info for debugging (runs on client side)
-  onMount(() => {
-    if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
+    const stepNames = ['ClassStep', 'BackgroundStep', 'SpeciesStep', 'AbilitiesStep', 'EquipmentStep', 'ReviewStep'];
+    $effect(() => {
       (window as any).__builder_step_value = step.value;
-      (window as any).__builder_step_component = 'ClassStep'; // Default step is 0 = ClassStep
-      // Update when step changes
-      const updateDebug = () => {
-        (window as any).__builder_step_value = step.value;
-        const stepNames = ['ClassStep', 'BackgroundStep', 'SpeciesStep', 'AbilitiesStep', 'EquipmentStep', 'ReviewStep'];
-        (window as any).__builder_step_component = stepNames[step.value] || 'unknown';
-      };
-      $effect(() => {
-        updateDebug();
-      });
-    }
-  });
+      (window as any).__builder_step_component = stepNames[step.value] || 'unknown';
+    });
+  }
 </script>
 
 <div class="builder-page">
@@ -67,13 +54,13 @@
         <svelte:component this={StepComponent} />
 
         <div class="builder-nav">
-          <Button
-            variant="ghost"
+          <button
+            class="on-btn on-btn--ghost on-btn--md"
             onclick={prevStep}
-            disabled={step === 0}
+            disabled={step.value === 0}
           >
             ← Previous
-          </Button>
+          </button>
 
           <div class="builder-nav-meta">
             {#if getCanUndo()}
@@ -84,12 +71,12 @@
             {/if}
           </div>
 
-          {#if step < 5}
+          {#if step.value < 5}
             <button
               type="button"
               class="on-btn on-btn--primary on-btn--md"
-              class:on-btn--disabled={!getCurrentStepValid()}
-              disabled={!getCurrentStepValid()}
+              class:on-btn--disabled={!currentStepValid}
+              disabled={!currentStepValid}
               onclick={nextStep}
               data-testid="next-btn"
             >

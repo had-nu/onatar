@@ -1,0 +1,2 @@
+{"time":"2026-08-04T22:17:21.499575038+01:00","level":"INFO","msg":"onatar server listening","addr":":8090"}
+{"time":"2026-08-04T22:17:21.500792079+01:00","level":"ERROR","msg":"server listen error","error":"listen tcp :8090: bind: address already in use"}

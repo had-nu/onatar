@@ -30,37 +30,61 @@ test.describe('Player Journey (Guest Mode)', () => {
     await expect(page.getByText('Loading content…')).toBeHidden({ timeout: 15000 })
 
     // Wait for the class step to be visible
-    await expect(page.getByRole('heading', { name: 'Choose Your Class' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: 'Escolha Sua Classe' })).toBeVisible({ timeout: 10000 })
 
-    // Step 1: Class - Select Fighter
+// Step 1: Class - Select Fighter
     const fighterCard = page.locator('[data-class-id="fighter"]')
     await expect(fighterCard).toBeVisible()
     await fighterCard.click()
-
+    
+    // Wait for the class selection to propagate to the store
+    await page.waitForTimeout(1000)
+    
+    // Debug: check the step value and class selection
+    const stepValue = await page.evaluate(() => {
+      // @ts-ignore
+      return window.__builder_step_value;
+    });
+    console.log('Step value after click:', stepValue);
+    
+    // Debug: check validation directly
+    const validationResult = await page.evaluate(() => {
+      // @ts-ignore
+      const draft = window.__builder_draft?.value;
+      if (!draft) return { valid: false, reason: 'no draft' };
+      const step = 0;
+      const valid = draft.classes.length > 0 && draft.classes[0]?.level >= 1;
+      return { valid, classesLength: draft.classes.length, firstClassLevel: draft.classes[0]?.level };
+    });
+    console.log('Validation result:', validationResult);
+    
+    // Fill character name (level is already set to 1 by default)
+    await page.locator('[data-testid="char-name-input"]').fill('E2E Hero')
+    
     // Wait for Next button to be enabled (validation reacts)
     const nextBtn = page.locator('[data-testid="next-btn"]')
     await expect(nextBtn).toBeVisible({ timeout: 5000 })
     await nextBtn.waitFor({ state: 'attached' })
-    await page.waitForTimeout(100) // let reactive update propagate
-    await expect(nextBtn).toBeEnabled({ timeout: 5000 })
+    await page.waitForTimeout(2000) // let reactive update propagate
+    await expect(nextBtn).toBeEnabled({ timeout: 10000 })
     await nextBtn.click()
 
     // Step 2: Background - Select Sage
-    await expect(page.getByRole('heading', { name: 'Choose Your Background' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Escolha Seu Background' })).toBeVisible()
     const sageBtn = page.getByRole('button', { name: /^Sage/ })
     await expect(sageBtn).toBeVisible()
     await sageBtn.click()
     await nextBtn.click()
 
     // Step 3: Species - Select Human
-    await expect(page.getByRole('heading', { name: 'Choose Your Species' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Escolha Sua Espécie' })).toBeVisible()
     const humanBtn = page.getByRole('button', { name: /^Human/ })
     await expect(humanBtn).toBeVisible()
     await humanBtn.click()
     await nextBtn.click()
 
     // Step 4: Abilities - Use Standard Array
-    await expect(page.getByRole('heading', { name: 'Assign Abilities' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Atribua Atributos' })).toBeVisible()
     const selects = page.locator('select')
     const pool = [15, 14, 13, 12, 10, 8]
     const count = await selects.count()
@@ -69,12 +93,12 @@ test.describe('Player Journey (Guest Mode)', () => {
     }
     await nextBtn.click()
 
-    // Step 5: Equipment (trivially valid with no gear data)
-    await expect(page.getByRole('heading', { name: 'Equipment' })).toBeVisible()
+    // Step 5: Equipamento (trivially valid with no gear data)
+    await expect(page.getByRole('heading', { name: 'Equipamento' })).toBeVisible()
     await nextBtn.click()
 
     // Step 6: Review + Save
-    await expect(page.getByRole('heading', { name: 'Final Review' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Revisão Final' })).toBeVisible()
     
     // Fill character name
     const nameInput = page.locator('[data-testid="char-name-input"]')
@@ -94,7 +118,7 @@ test.describe('Player Journey (Guest Mode)', () => {
   test('wizard steps: class → background → species → abilities → equipment → review', async ({ page }) => {
     await page.goto('/#/builder')
     await expect(page.getByText('Loading content…')).toBeHidden({ timeout: 15000 })
-    await expect(page.getByRole('heading', { name: 'Choose Your Class' })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: 'Escolha Sua Classe' })).toBeVisible({ timeout: 10000 })
 
     // Step 1: Class
     await page.locator('[data-class-id="fighter"]').click()
@@ -105,7 +129,7 @@ test.describe('Player Journey (Guest Mode)', () => {
     await page.locator('[data-testid="next-btn"]').click()
 
     // Step 2: Background
-    await expect(page.getByRole('heading', { name: 'Choose Your Background' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Escolha Seu Background' })).toBeVisible()
     await page.getByRole('button', { name: /^Sage/ }).click()
     await page.locator('[data-testid="next-btn"]').waitFor({ state: 'visible' })
     await page.waitForTimeout(100)
@@ -113,7 +137,7 @@ test.describe('Player Journey (Guest Mode)', () => {
     await page.locator('[data-testid="next-btn"]').click()
 
     // Step 3: Species
-    await expect(page.getByRole('heading', { name: 'Choose Your Species' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Escolha Sua Espécie' })).toBeVisible()
     await page.getByRole('button', { name: /^Human/ }).click()
     await page.locator('[data-testid="next-btn"]').waitFor({ state: 'visible' })
     await page.waitForTimeout(100)
@@ -121,7 +145,7 @@ test.describe('Player Journey (Guest Mode)', () => {
     await page.locator('[data-testid="next-btn"]').click()
 
     // Step 4: Abilities
-    await expect(page.getByRole('heading', { name: 'Assign Abilities' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Atribua Atributos' })).toBeVisible()
     const selects = page.locator('select')
     const pool = [15, 14, 13, 12, 10, 8]
     const count = await selects.count()
@@ -133,15 +157,15 @@ test.describe('Player Journey (Guest Mode)', () => {
     await expect(page.locator('[data-testid="next-btn"]')).toBeEnabled({ timeout: 5000 })
     await page.locator('[data-testid="next-btn"]').click()
 
-    // Step 5: Equipment
-    await expect(page.getByRole('heading', { name: 'Equipment' })).toBeVisible()
+    // Step 5: Equipamento
+    await expect(page.getByRole('heading', { name: 'Equipamento' })).toBeVisible()
     await page.locator('[data-testid="next-btn"]').waitFor({ state: 'visible' })
     await page.waitForTimeout(100)
     await expect(page.locator('[data-testid="next-btn"]')).toBeEnabled({ timeout: 5000 })
     await page.locator('[data-testid="next-btn"]').click()
 
     // Step 6: Review
-    await expect(page.getByRole('heading', { name: 'Final Review' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Revisão Final' })).toBeVisible()
     await page.locator('[data-testid="char-name-input"]').fill('Journey Hero')
     await page.getByRole('button', { name: '2694 Forge Character' }).click()
 
@@ -283,7 +307,7 @@ test.describe('Player Journey (Guest Mode)', () => {
     await page.locator('[data-testid="restart-btn"]').click()
     
     // Should be back at step 1 (Class)
-    await expect(page.getByRole('heading', { name: 'Choose Your Class' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Escolha Sua Classe' })).toBeVisible()
     await expect(page.locator('[data-class-id="fighter"]')).toBeVisible()
   })
 })

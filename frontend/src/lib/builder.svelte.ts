@@ -36,6 +36,7 @@ export const contentLoading = box(true);
 if (typeof window !== 'undefined') {
   (window as any).__builder_step_value = step.value;
   (window as any).__builder_step_component = 'ClassStep'; // Default step is 0 = ClassStep
+  (window as any).__builder_draft = draft;
 }
 
 // Undo / redo
@@ -322,12 +323,13 @@ export function getTotalLevel() { return draft.value.classes.reduce((s, c) => s 
 export function getCanUndo() { return historyIndex > 0; }
 export function getCanRedo() { return historyIndex < history.length - 1; }
 export function getCurrentStepValid() { return validateStep(step.value); }
+export function getCurrentStepValidReactive() { return validateStep(step.value); }
 export function getClassDef() { return classes.value.find(c => c.id === draft.value.classes[0]?.id); }
 export function getSpeciesDef() { return species.value.find(s => s.id === draft.value.speciesId); }
 export function getBackgroundDef() { return backgrounds.value.find(b => b.id === draft.value.backgroundId); }
 
 // ─── Step validation ───────────────────────────────────────
-function validateStep(s: number): boolean {
+export function validateStep(s: number): boolean {
   switch (s) {
     case 0: return draft.value.classes.length > 0 && draft.value.classes[0].level >= 1;
     case 1: return !!draft.value.backgroundId;
@@ -337,6 +339,28 @@ function validateStep(s: number): boolean {
     case 5: return !!draft.value.name && pendingChoices.value.length === 0;
     default: return false;
   }
+}
+
+// ─── Reactive derived values ──────────────────────────────────
+/** Reactive validation of the current wizard step. Use in templates instead of calling validateStep() directly. */
+export function currentStepValid(): boolean {
+	return validateStep(step.value)
+}
+
+/** Reactive suggestions based on current class selection. Use in templates. */
+export function currentSuggestions(): {
+	species: string[]
+	backgrounds: string[]
+	spells: string[]
+} {
+	const c = firstClass()
+	return {
+		species: c?.suggestedSpecies ?? [],
+		backgrounds: c?.suggestedBackgrounds ?? [],
+		spells: Array.isArray(c?.data?.recommendedSpells)
+			? c.data.recommendedSpells.map(String)
+			: [],
+	}
 }
 
 // ─── History (undo/redo) ───────────────────────────────────
@@ -386,6 +410,13 @@ export function prevStep() { setStep(step.value - 1); }
 
 export function setName(name: string) {
   draft.value.name = name;
+  requestPreview();
+}
+
+export function setLevel(level: number) {
+  pushHistory();
+  draft.value.classes = draft.value.classes.map(c => ({ ...c, level }));
+  draft.value.level = level;
   requestPreview();
 }
 
